@@ -1,0 +1,38 @@
+{
+  "name": "d3-tesselate",
+  "version": "1.0.0",
+  "description": "Regularly tesselate polygons with hexagons",
+  "keywords": [
+    "d3",
+    "d3-module",
+    "d3-tesselate"
+  ],
+  "license": "BSD-3-Clause",
+  "main": "build/d3-tesselate.js",
+  "module": "index",
+  "jsnext:main": "index",
+  "homepage": "https://github.com/larsvers/d3-tesselate",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larsvers/d3-tesselate.git"
+  },
+  "scripts": {
+    "build": "rm -rf build && mkdir build && rollup --config rollup.config.js",
+    "watch": "rollup --config rollup.config.js --watch",
+    "pretest": "npm run build",
+    "test": "tape 'test/**/*.test.js' | tap-spec",
+    "test:simple": "tape 'test/**/*.test.js'",
+    "prepare": "npm run test && uglifyjs build/d3-tesselate.js -c -m -o build/d3-tesselate.min.js",
+    "postpublish": "zip -j build/d3-tesselate.zip -- LICENSE README.md build/d3-tesselate.js build/d3-tesselate.min.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "rollup": "^0.57.1",
+    "rollup-plugin-babel": "^3.0.3",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.9.0",
+    "uglify-js": "^3.3.16"
+  }
+}
