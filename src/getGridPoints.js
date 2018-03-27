@@ -9,18 +9,18 @@ import { range } from 'd3-array';
  */
 export default function(w, h, r) {
 
-  var hexDistance = r * 1.5;
-  var cols = w / hexDistance;
-  var rows = Math.floor(h / hexDistance);
+  const hexDistance = r * 1.5;
+  const cols = Math.ceil(w / hexDistance);
+  const rows = Math.ceil(h / hexDistance);
   
-  return range(rows * cols).map(function(el, i) {
-
-  	return {
-  		x: i % cols * hexDistance,
+  return range(rows * cols).map((el, i) =>
+  
+    ({
+  		x: Math.floor(i % cols * hexDistance),
   		y: Math.floor(i / cols) * hexDistance,
   		datapoint: 0
-  	};
+  	})
 
-  });
+  );
 
 };

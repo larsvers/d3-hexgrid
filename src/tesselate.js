@@ -1,21 +1,30 @@
-import getGridPoints from './getGridPoints.js'
+import getGridPoints from './getGridPoints.js';
+import getBoundaryPoints from './getBoundaryPoints.js';
 
 export default function() {
 
 	// Init exposed.
-	var width,
+	let width,
 			height,
 			hexRadius;
 
+	let geography,
+			projection;
 
 	// Main.
 	const tess = function() {
 
-		const gridPoints = getGridPoints(width, height, hexRadius)
+debugger
 
-		return gridPoints;
+		const gridPoints = getGridPoints(width, height, hexRadius);
+
+		const boundaryPoints = getBoundaryPoints(geography, projection)
+
+
+		return boundaryPoints;
 
 	};
+
 
 	// Exposed.
 	tess.width = function(_) {
@@ -28,6 +37,14 @@ export default function() {
 
 	tess.hexRadius = function(_) {
 		return arguments.length ? (hexRadius = _, tess) : hexRadius;
+	};
+
+	tess.geography = function(_) {
+		return arguments.length ? (geography = _, tess) : geography;
+	};
+
+	tess.projection = function(_) {
+		return arguments.length ? (projection = _, tess) : projection;
 	};
 
 
