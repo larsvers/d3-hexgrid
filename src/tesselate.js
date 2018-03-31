@@ -1,11 +1,12 @@
 import getGridPoints from './getGridPoints.js';
 import getBoundaryPoints from './getBoundaryPoints.js';
+import getPointsInBoundaries from './getPointsInBoundaries.js';
+import getHexGenerator from './getHexGenerator.js';
 
 export default function() {
 
 	// Init exposed.
-	let width,
-			height,
+	let size,
 			hexRadius;
 
 	let geography,
@@ -14,25 +15,28 @@ export default function() {
 	// Main.
 	const tess = function() {
 
-debugger
+		const [width, height] = size;
 
 		const gridPoints = getGridPoints(width, height, hexRadius);
 
-		const boundaryPoints = getBoundaryPoints(geography, projection)
+		const boundaryPoints = getBoundaryPoints(geography, projection);
 
+		const pointsInBoundaries = getPointsInBoundaries(gridPoints, boundaryPoints);
 
-		return boundaryPoints;
+		const hexGenerator = getHexGenerator(pointsInBoundaries, hexRadius);
+
+		const layout = hexGenerator(pointsInBoundaries);
+
+		hexGenerator.layout = layout;
+
+		return hexGenerator;
 
 	};
 
 
 	// Exposed.
-	tess.width = function(_) {
-		return arguments.length ? (width = _, tess) : width;
-	};
-
-	tess.height = function(_) {
-		return arguments.length ? (height = _, tess) : height;
+	tess.size = function(_) {
+		return arguments.length ? (size = _, tess) : size;
 	};
 
 	tess.hexRadius = function(_) {
