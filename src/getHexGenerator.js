@@ -1,12 +1,12 @@
 import { hexbin } from 'd3-hexbin';
 
 /**
- * Produces an array or arrays with all points within an area.
- * @param  {Array} gridPoints     	All grid points.
- * @param  {Array} boundaryPoints	 	Array of arrays, one for each area, holding the area's boundary points.
- * @return {Array}            			Array of grid points within each area defined by boundaryPoints.
+ * Creates a configured instance of the hexbin generator.
+ * @param  {Array} areaPoints     	Array of grid points within each defined area.
+ * @param  {number} radius	 				Raidus in pixel.
+ * @return {Function}            		Hexgin generator function.
  */
-export default function(areaPoints, radius) {
+export default function(radius) {
 
 	const hexbinGenerator = hexbin()
 		.radius(radius)

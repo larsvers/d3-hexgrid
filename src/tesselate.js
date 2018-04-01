@@ -1,19 +1,20 @@
 import getGridPoints from './getGridPoints.js';
 import getBoundaryPoints from './getBoundaryPoints.js';
-import getPointsInBoundaries from './getPointsInBoundaries.js';
+import getAreaGridPoints from './getAreaGridPoints.js';
 import getHexGenerator from './getHexGenerator.js';
+import processUserData from './processUserData.js';
+import rollupHexPoints from './rollupHexPoints.js';
 
 export default function() {
 
 	// Init exposed.
 	let size,
-			hexRadius;
-
-	let geography,
+			hexRadius,
+			geography,
 			projection;
 
 	// Main.
-	const tess = function() {
+	const tess = function(userData, userVariables) {
 
 		const [width, height] = size;
 
@@ -21,13 +22,20 @@ export default function() {
 
 		const boundaryPoints = getBoundaryPoints(geography, projection);
 
-		const pointsInBoundaries = getPointsInBoundaries(gridPoints, boundaryPoints);
+		const areaGridPoints = getAreaGridPoints(gridPoints, boundaryPoints);
 
-		const hexGenerator = getHexGenerator(pointsInBoundaries, hexRadius);
+		const userDataPoints = processUserData(projection, userData, userVariables);
 
-		const layout = hexGenerator(pointsInBoundaries);
+		const mergedData = areaGridPoints.concat(userDataPoints);
 
-		hexGenerator.layout = layout;
+		const hexGenerator = getHexGenerator(hexRadius);
+
+		const hexPoints = hexGenerator(mergedData);
+
+		const rolledUpHexPoints = rollupHexPoints(hexPoints);
+
+		hexGenerator.layout = rolledUpHexPoints.layout;
+		hexGenerator.maxHexPoints = rolledUpHexPoints.maxHexPoints;
 
 		return hexGenerator;
 
