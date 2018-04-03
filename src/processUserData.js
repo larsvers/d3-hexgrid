@@ -1,7 +1,8 @@
 /**
  * Processes the user data to an array of objects, structured for further use.
+ * @param  {function} projection    Geo projection.
  * @param  {Array} data     				Array of user data objects.
- * @param  {Array} variables			 	Array of variables the user would like to add to the final layout.
+ * @param  {Array} variables			 	Optional. Array of variables the user would like to add to the layout.
  * @return {Array}            			Array of user's data points.
  */
 export default function(projection, data, variables) {
@@ -15,9 +16,11 @@ export default function(projection, data, variables) {
 		obj.y = coords[1];
 		
 		if(variables && variables.length) {
-			variables.forEach(function(elt) {
-				obj[elt] = el[elt];
+
+			variables.forEach(function(varName) {
+				obj[varName] = el[varName];
 			});
+
 		}
 
 		return obj;

@@ -5,7 +5,7 @@ import { range } from 'd3-array';
  * @param  {number} w 	Point grid area width.
  * @param  {number} h 	Point grid area height.
  * @param  {number} r 	Approximate hex radius.
- * @return {Object[]}		All points in the point grid.   		
+ * @return {Array}		  All points in the point grid.   		
  */
 export default function(w, h, r) {
 
@@ -18,9 +18,9 @@ export default function(w, h, r) {
     ({
   		x: Math.floor(i % cols * hexDistance),
   		y: Math.floor(i / cols) * hexDistance,
-  		datapoint: 0
+  		gridpoint: 1
   	})
 
   );
 
-};
+}

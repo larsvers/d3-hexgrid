@@ -1,10 +1,10 @@
 import { polygonContains } from 'd3-polygon';
 
 /**
- * Produces an array or arrays with all points within an area.
- * @param  {Array} gridPoints     	All grid points.
- * @param  {Array} boundaryPoints	 	Array of arrays, one for each area, holding the area's boundary points.
- * @return {Array}            			Array of grid points within each area defined by boundaryPoints.
+ * Produces an array or arrays with all points within an area (fka feature).
+ * @param  {Array} gridPoints     		All grid points.
+ * @param  {Array} boundaryPoints	 		Array of arrays, one for each area, holding the area's boundary points.
+ * @return {Array}            				Array of grid points within each area. Sorted ascendingly by x and y.
  */
 export default function(gridPoints, boundaryPoints) {
 

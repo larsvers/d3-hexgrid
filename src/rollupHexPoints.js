@@ -15,7 +15,7 @@ export default function(hexPoints) {
 
 		// Remove grid points.
 		for (let j = hexPoint.length - 1; j >= 0; --j) {
-			if (hexPoint[j].datapoint === 0) {
+			if (hexPoint[j].gridpoint == 1) {
 				hexPoint.splice(j, 1);
 			}
 		}
@@ -26,6 +26,6 @@ export default function(hexPoints) {
 
 	}
 
-	return { layout: hexPoints, maxHexPoints }
+	return { layout: hexPoints, maxHexPoints };
 
 }
