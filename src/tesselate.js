@@ -1,6 +1,8 @@
 import getGridPoints from './getGridPoints.js';
 import getBoundaryPoints from './getBoundaryPoints.js';
-import getAreaGridPoints from './getAreaGridPoints.js';
+import getPolygonGridPoints from './getPolygonGridPoints.js';
+import getGeoOutline from './getGeoOutline.js';
+import getGeoGridPoints from './getGeoGridPoints.js';
 import getHexGenerator from './getHexGenerator.js';
 import processUserData from './processUserData.js';
 import rollupHexPoints from './rollupHexPoints.js';
@@ -8,23 +10,32 @@ import rollupHexPoints from './rollupHexPoints.js';
 export default function() {
 
 	// Init exposed.
-	let size,
+	let geography,
+			projection,
+			pathGenerator,
 			hexRadius,
-			geography,
-			projection;
+			geoStitched = false;
 
 	// Main.
 	const tess = function(userData, userVariables) {
 
-		const [width, height] = size;
+		const gridPoints = getGridPoints(geography, projection, pathGenerator, hexRadius);
 
-		const gridPoints = getGridPoints(width, height, hexRadius);
+		let areaGridPoints;
 
-		const boundaryPoints = getBoundaryPoints(geography, projection);
+		if (!geoStitched) {
 
-		const areaGridPoints = getAreaGridPoints(gridPoints, boundaryPoints);
+			const boundaryPoints = getBoundaryPoints(geography, projection);
+			areaGridPoints = getPolygonGridPoints(gridPoints, boundaryPoints);
 
-		const userDataPoints = processUserData(projection, userData, userVariables);
+		} else {
+
+			const geoGridPoints = getGeoOutline(pathGenerator, gridPoints);
+			areaGridPoints = getGeoGridPoints(geoGridPoints, geography, projection);
+
+		}
+		
+		const userDataPoints = processUserData(userData, projection, userVariables);
 
 		const mergedData = areaGridPoints.concat(userDataPoints);
 
@@ -34,8 +45,15 @@ export default function() {
 
 		const rolledUpHexPoints = rollupHexPoints(hexPoints);
 
+
+		// Additional outputs.
+		hexGenerator.grid = gridPoints;
+		// hexGenerator.geoGrid = geoGridPoints ? geoGridPoints : [];
+		hexGenerator.areaGrid = areaGridPoints;
+
+		// Key outputs.
 		hexGenerator.layout = rolledUpHexPoints.layout;
-		hexGenerator.maxHexPoints = rolledUpHexPoints.maxHexPoints;
+		hexGenerator.maximum = rolledUpHexPoints.maxHexPoints;
 
 		return hexGenerator;
 
@@ -43,14 +61,6 @@ export default function() {
 
 
 	// Exposed.
-	tess.size = function(_) {
-		return arguments.length ? (size = _, tess) : size;
-	};
-
-	tess.hexRadius = function(_) {
-		return arguments.length ? (hexRadius = _, tess) : hexRadius;
-	};
-
 	tess.geography = function(_) {
 		return arguments.length ? (geography = _, tess) : geography;
 	};
@@ -59,9 +69,20 @@ export default function() {
 		return arguments.length ? (projection = _, tess) : projection;
 	};
 
+	tess.pathGenerator = function(_) {
+		return arguments.length ? (pathGenerator = _, tess) : pathGenerator;
+	};
+
+	tess.hexRadius = function(_) {
+		return arguments.length ? (hexRadius = _, tess) : hexRadius;
+	};
+
+	tess.geoStitched = function(_) {
+		return arguments.length ? (geoStitched = _, tess) : geoStitched;
+	};
+
 
 	return tess;
-
 
 };
 

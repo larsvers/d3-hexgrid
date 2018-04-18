@@ -1,25 +1,35 @@
 import { range } from 'd3-array';
 
 /**
- * Produces a point grid layout.
- * @param  {number} w 	Point grid area width.
- * @param  {number} h 	Point grid area height.
- * @param  {number} r 	Approximate hex radius.
- * @return {Array}		  All points in the point grid.   		
+ * Produce a point grid layout spanning the path's bounding box.
+ * @param  {Object}   geoObject     The geography GeoJSON.
+ * @param  {function} projection 	  Projection function.
+ * @param  {function} geoPath       Path generator.
+ * @param  {number}   r             Hex radius.
+ * @return {Array}		              Points in the point grid.
  */
-export default function(w, h, r) {
+export default function(geoObject, projection, geoPath, r) {
 
-  const hexDistance = r * 1.5;
-  const cols = Math.ceil(w / hexDistance);
-  const rows = Math.ceil(h / hexDistance);
+  // Get path dimensions.
+  const b = geoPath.bounds(geoObject),
+        w = b[1][0] - b[0][0],
+        h = b[1][1] - b[0][1],
+        xOff = b[0][0],
+        yOff = b[0][1];
+
+  // Set up the grid.
+  const hexDistance = r * 1.5,
+        cols = Math.ceil(w*1.01 / hexDistance),
+        rows = Math.ceil(h*1.01 / hexDistance);
   
-  return range(rows * cols).map((el, i) =>
+  // Produce the grid.
+  return range(rows * cols).map((el, i) => 
   
-    ({
-  		x: Math.floor(i % cols * hexDistance),
-  		y: Math.floor(i / cols) * hexDistance,
-  		gridpoint: 1
-  	})
+    ({  
+      x: xOff + (i % cols * hexDistance),
+      y: yOff + Math.floor(i / cols) * hexDistance,
+      gridpoint: 1
+    })
 
   );
 

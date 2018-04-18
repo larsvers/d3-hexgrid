@@ -1,13 +1,17 @@
 /**
- * Rolls up number of user points per hexagon and adds maximum number of hex points.
- * @param  {Array} hexPoints 				Array of arrays of grid and datapoints per hexagon.
- * @return {Array}            			Array of arrays of datapoints per hexagon plus additional props.
+ * Roll up number of datapoints per hexagon and 
+ * calculate maximum number of hex points.
+ * @param  {Array} hexPoints 				Array of arrays of grid and 
+ *                               		datapoints per hexagon.
+ * @return {Array}            			Array of arrays of datapoints 
+ *                                  per hexagon plus additional props.
  */
 export default function(hexPoints) {
 
 	// Init maximum prop.
 	let maxHexPoints = 0;
 
+	// Optimised decrementing loop as potentially many points.
 	for (let i = hexPoints.length - 1; i >= 0; i--) {
 
 		// Cache current element.
