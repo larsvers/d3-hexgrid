@@ -19,6 +19,8 @@ export default function() {
 	// Main.
 	const tess = function(userData, userVariables) {
 
+		debugger
+
 		const gridPoints = getGridPoints(geography, projection, pathGenerator, hexRadius);
 
 		let areaGridPoints;

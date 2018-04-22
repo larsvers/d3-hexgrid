@@ -8,10 +8,34 @@
 export default function(geo, projection) {
 	
 	let boundaryPoints = [];
+	let collection;
 
-	for (let i = 0; i < geo.features.length; i++) {
-		
-		const geom = geo.features[i].geometry;
+	// 1) Try for geometry type and get their contents.
+
+	try {
+
+		if (geo.type === 'FeatureCollection') {
+			collection = geo.features;
+		} else if (geo.type === 'GeometryCollection') {
+			collection = geo.geometries;
+		} else {
+			throw new Error('Geometry type not supported. Please feed me a "FeatureCollection" or a "GeometryCollection".')
+		}
+
+	} catch(err) {
+
+		console.error(err)
+
+	}
+
+	// 2) Retrieve the boundary points.
+
+	for (let i = 0; i < collection.length; i++) {
+
+		// Crack open the geometry to the to the coordinate holder object.
+		const geom = geo.type === 'FeatureCollection'
+			? geo.features[i].geometry
+			: geo.geometries[i];
 
 		// Different ways to access coordinates in a FeatureCollection:
 
@@ -30,7 +54,9 @@ export default function(geo, projection) {
 			boundaryPoints = boundaryPoints.concat(polygons);
 
 		} else {
+
 			continue;
+
 		}
 
 	}
