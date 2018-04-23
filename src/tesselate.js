@@ -19,7 +19,7 @@ export default function() {
 	// Main.
 	const tess = function(userData, userVariables) {
 
-		debugger
+		// debugger
 
 		const gridPoints = getGridPoints(geography, projection, pathGenerator, hexRadius);
 
@@ -49,9 +49,10 @@ export default function() {
 
 
 		// Additional outputs.
-		hexGenerator.grid = gridPoints;
+		// hexGenerator.grid = gridPoints;
 		// hexGenerator.geoGrid = geoGridPoints ? geoGridPoints : [];
-		hexGenerator.areaGrid = areaGridPoints;
+		// hexGenerator.areaGrid = areaGridPoints;
+		// hexGenerator.userDataPoints = userDataPoints;
 
 		// Key outputs.
 		hexGenerator.layout = rolledUpHexPoints.layout;

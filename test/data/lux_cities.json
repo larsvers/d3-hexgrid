@@ -1,0 +1,14 @@
+[
+	{"Name":"Vianden","Area":10,"Population":1918,"lat":49.927605,"lng":6.154527},
+	{"Name":"Differdange","Area":22,"Population":24805,"lat":49.52273,"lng":5.88896},
+	{"Name":"Dudelange","Area":21,"Population":20003,"lat":49.478462,"lng":6.085879},
+	{"Name":"Luxembourg City","Area":51,"Population":115227,"lat":49.611621,"lng":6.131935},
+	{"Name":"Diekirch","Area":12,"Population":6896,"lat":49.867178,"lng":6.159563},
+	{"Name":"Echternach","Area":20,"Population":5249,"lat":49.811413,"lng":6.417564},
+	{"Name":"Esch-sur-Alzette","Area":14,"Population":33939,"lat":49.500881,"lng":5.986093},
+	{"Name":"Ettelbruck","Area":15,"Population":8544,"lat":49.847802,"lng":6.098523},
+	{"Name":"Grevenmacher","Area":16,"Population":4794,"lat":49.680841,"lng":6.440759},
+	{"Name":"Remich","Area":5,"Population":3482,"lat":49.545017,"lng":6.367422},
+	{"Name":"Rumelange","Area":7,"Population":5422,"lat":49.459942,"lng":6.031811},
+	{"Name":"Wiltz","Area":19,"Population":6522,"lat":49.96622,"lng":5.932431}
+]
