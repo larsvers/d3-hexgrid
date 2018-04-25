@@ -1,29 +1,29 @@
 {
-  "name": "d3-tesselate",
+  "name": "d3-hexgrid",
   "version": "1.0.0",
-  "description": "Regularly tesselate polygons with hexagons",
+  "description": "Regularly tesselate polygons with hexagons.",
   "keywords": [
     "d3",
     "d3-module",
-    "d3-tesselate"
+    "d3-hexgrid"
   ],
   "license": "BSD-3-Clause",
-  "main": "build/d3-tesselate.js",
+  "main": "dist/d3-hexgrid.js",
   "module": "index",
   "jsnext:main": "index",
-  "homepage": "https://github.com/larsvers/d3-tesselate",
+  "homepage": "https://github.com/larsvers/d3-hexgrid",
   "repository": {
     "type": "git",
-    "url": "https://github.com/larsvers/d3-tesselate.git"
+    "url": "https://github.com/larsvers/d3-hexgrid.git"
   },
   "scripts": {
-    "build": "rm -rf build && mkdir build && rollup --config rollup.config.js",
+    "build": "rm -rf dist && mkdir dist && rollup --config rollup.config.js",
     "watch": "rollup --config rollup.config.js --watch",
     "pretest": "npm run build",
     "test": "tape 'test/**/*.test.js' | tap-spec",
     "test:simple": "tape 'test/**/*.test.js'",
-    "prepare": "npm run test && uglifyjs build/d3-tesselate.js -c -m -o build/d3-tesselate.min.js",
-    "postpublish": "zip -j build/d3-tesselate.zip -- LICENSE README.md build/d3-tesselate.js build/d3-tesselate.min.js"
+    "prepare": "npm run test && uglifyjs dist/d3-hexgrid.js -c -m -o dist/d3-hexgrid.min.js",
+    "postpublish": "zip -j dist/d3-hexgrid.zip -- LICENSE README.md dist/d3-hexgrid.js dist/d3-hexgrid.min.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

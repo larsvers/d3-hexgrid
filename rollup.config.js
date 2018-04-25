@@ -9,15 +9,13 @@ const	globals = {
 	'd3-polygon': 'd3'
 }
 
-
 export default {
 	entry: 'index.js',
 	output: {
-		file: 'build/d3-tesselate.js',
+		file: 'dist/d3-hexgrid.js',
 		format: 'umd',
 		name: 'd3',
 		globals: globals,
-		banner: '// d3-tesselate plugin',
 	},
   plugins: [
     resolve(),
@@ -26,6 +24,6 @@ export default {
     }),
 		license({
 			banner: `d3-hexgrid plugin v<%= pkg.version %>. <%= pkg.repository.url %>.`
-		})
+		}),
   ]
 };

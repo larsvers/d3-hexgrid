@@ -1,2 +1,2 @@
-build/*.zip
+dist/*.zip
 test/

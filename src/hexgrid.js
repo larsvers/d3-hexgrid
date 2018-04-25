@@ -17,7 +17,7 @@ export default function() {
 			geoStitched = false;
 
 	// Main.
-	const tess = function(userData, userVariables) {
+	const hexgrid = function(userData, userVariables) {
 
 		// debugger
 
@@ -64,28 +64,28 @@ export default function() {
 
 
 	// Exposed.
-	tess.geography = function(_) {
-		return arguments.length ? (geography = _, tess) : geography;
+	hexgrid.geography = function(_) {
+		return arguments.length ? (geography = _, hexgrid) : geography;
 	};
 
-	tess.projection = function(_) {
-		return arguments.length ? (projection = _, tess) : projection;
+	hexgrid.projection = function(_) {
+		return arguments.length ? (projection = _, hexgrid) : projection;
 	};
 
-	tess.pathGenerator = function(_) {
-		return arguments.length ? (pathGenerator = _, tess) : pathGenerator;
+	hexgrid.pathGenerator = function(_) {
+		return arguments.length ? (pathGenerator = _, hexgrid) : pathGenerator;
 	};
 
-	tess.hexRadius = function(_) {
-		return arguments.length ? (hexRadius = _, tess) : hexRadius;
+	hexgrid.hexRadius = function(_) {
+		return arguments.length ? (hexRadius = _, hexgrid) : hexRadius;
 	};
 
-	tess.geoStitched = function(_) {
-		return arguments.length ? (geoStitched = _, tess) : geoStitched;
+	hexgrid.geoStitched = function(_) {
+		return arguments.length ? (geoStitched = _, hexgrid) : geoStitched;
 	};
 
 
-	return tess;
+	return hexgrid;
 
 };
 
