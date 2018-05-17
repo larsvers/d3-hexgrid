@@ -1,5 +1,5 @@
 /**
- * Produce an array or arrays with all boundary points.
+ * Produce an array or arrays with all polygonal boundary points.
  * @param  {Object} 	geo        		The GeoJSON FeatureCollection.
  * @param  {function} projection 		The D3 projection function.
  * @return {Array}            			Array of arrays holding the boundary points 

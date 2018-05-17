@@ -8,16 +8,16 @@ import processUserData from './processUserData.js';
 import rollupHexPoints from './rollupHexPoints.js';
 
 export default function() {
+
 	// Init exposed.
 	let geography,
 		projection,
 		pathGenerator,
-		hexRadius,
+		hexRadius = 4,
 		geoStitched = false;
 
 	// Main.
 	const hexgrid = function(userData, userVariables) {
-		// debugger
 
 		const gridPoints = getGridPoints(
 			geography,
@@ -46,11 +46,7 @@ export default function() {
 
 		const rolledUpHexPoints = rollupHexPoints(hexPoints);
 
-		// Additional outputs.
-		// hexGenerator.grid = gridPoints;
-		// hexGenerator.geoGrid = geoGridPoints ? geoGridPoints : [];
-		// hexGenerator.areaGrid = areaGridPoints;
-		// hexGenerator.userDataPoints = userDataPoints;
+		// Add-ons.
 		hexGenerator.getBoundaryPoints = getBoundaryPoints;
 		hexGenerator.getPolygonPoints = getPolygonPoints;
 

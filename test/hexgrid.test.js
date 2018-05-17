@@ -5,7 +5,7 @@ const tape = require('tape'),
 			luxGeo = require('./data/lux_adm0.json'),
 			rusGeo = require('./data/rus_chukotka.json'),
 			worldTopo = require('./data/world_topo.json'),
-    	tesselate = require('../').tesselate;
+    	hexgrid = require('../').hexgrid;
 
 
 // Test types of exposed elements.
@@ -13,7 +13,7 @@ const tape = require('tape'),
 const projectLux = d3Geo.geoMercator().fitSize([100, 100], luxGeo);
 const geoPathLux = d3Geo.geoPath().projection(projectLux);
 
-const tLux = tesselate()
+const tLux = hexgrid()
 	.pathGenerator(geoPathLux)
 	.projection(projectLux)
 	.geography(luxGeo)
@@ -21,7 +21,7 @@ const tLux = tesselate()
 
 const hexGridLux = tLux(luxCities, ['Name', 'Population']);
 
-tape('The tesselate() function exposes', test => {
+tape('The hexgrid() function exposes', test => {
 
 	let actual, expected;
 
@@ -53,7 +53,7 @@ tape('The tesselate() function exposes', test => {
 
 // Test values of exposed elements.
 
-tape('The tesselate() function returns', test => {
+tape('The hexgrid() function returns', test => {
 
 	let actual, expected;
 
@@ -89,7 +89,7 @@ tape('The tesselate() function returns', test => {
 const projectRussia = d3Geo.geoMercator().fitSize([1000, 1000], rusGeo);
 const geoPathRussia = d3Geo.geoPath().projection(projectRussia);
 
-const tRus = tesselate()
+const tRus = hexgrid()
 	.pathGenerator(geoPathRussia)
 	.projection(projectRussia)
 	.geography(rusGeo)
@@ -97,7 +97,7 @@ const tRus = tesselate()
 
 const hexGridRus = tRus([]);
 
-tape('The tesselate() function run with a GeoJSON cut along the antimeridian', test => {
+tape('The hexgrid() function run with a GeoJSON cut along the antimeridian', test => {
 
 	let actual, expected;
 
@@ -119,7 +119,7 @@ geo.features = geo.features.filter(feature => feature.id == 643); // Russia.
 const projectWorld = d3Geo.geoMercator().fitSize([1000, 1000], geo);
 const geoPathWorld = d3Geo.geoPath().projection(projectWorld);
 
-const tRusStitched = tesselate()
+const tRusStitched = hexgrid()
 	.pathGenerator(geoPathWorld)
 	.projection(projectWorld)
 	.geography(geo)
@@ -128,7 +128,7 @@ const tRusStitched = tesselate()
 
 const hexGridRusStitched = tRusStitched([]);
 
-tape('The tesselate() function run with a stitched GeoJSON and .geoStitched(true)', test => {
+tape('The hexgrid() function run with a stitched GeoJSON and .geoStitched(true)', test => {
 
 	let actual, expected;
 
