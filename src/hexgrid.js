@@ -1,63 +1,60 @@
-import getGridPoints from './getGridPoints.js';
-import getBoundaryPoints from './getBoundaryPoints.js';
-import getPolygonPoints from './getPolygonPoints.js';
-import getGeoOutline from './getGeoOutline.js';
-import getGeoPoints from './getGeoPoints.js';
-import getHexGenerator from './getHexGenerator.js';
-import processUserData from './processUserData.js';
-import rollupHexPoints from './rollupHexPoints.js';
+import { clampPrecision } from './utils'
+
+import setHexGenerator from './setHexGenerator';
+import getImageData from './getImageData';
+import getImageCenters from './getImageCenters';
+
+import processUserData from './processUserData';
+import rollupHexPoints from './rollupHexPoints';
+
+
 
 export default function() {
 
 	// Init exposed.
-	let geography,
+	let extent,
+    geography,
 		projection,
 		pathGenerator,
 		hexRadius = 4,
-		geoStitched = false;
+		precision = 1;
 
 	// Main.
 	const hexgrid = function(userData, userVariables) {
+    
+    // debugger
+    
+    const hexbin = setHexGenerator(extent, hexRadius);
 
-		const gridPoints = getGridPoints(
-			geography,
-			projection,
-			pathGenerator,
-			hexRadius
-		);
+    const size = hexbin.size();
 
-		let areaGridPoints;
+    const centers = hexbin.centers();
 
-		if (!geoStitched) {
-			const boundaryPoints = getBoundaryPoints(geography, projection);
-			areaGridPoints = getPolygonPoints(gridPoints, boundaryPoints);
-		} else {
-			const geoGridPoints = getGeoOutline(pathGenerator, gridPoints);
-			areaGridPoints = getGeoPoints(geoGridPoints, geography, projection);
-		}
+    const imageData = getImageData(size, precision, pathGenerator, geography);
+
+    const imageCenters = getImageCenters(centers, imageData, size, precision);
 
 		const userDataPoints = processUserData(userData, projection, userVariables);
 
-		const mergedData = areaGridPoints.concat(userDataPoints);
+		const mergedData = imageCenters.concat(userDataPoints);
 
-		const hexGenerator = getHexGenerator(hexRadius);
-
-		const hexPoints = hexGenerator(mergedData);
+		const hexPoints = hexbin(mergedData);
 
 		const rolledUpHexPoints = rollupHexPoints(hexPoints);
 
-		// Add-ons.
-		hexGenerator.getBoundaryPoints = getBoundaryPoints;
-		hexGenerator.getPolygonPoints = getPolygonPoints;
+		hexbin.layout = rolledUpHexPoints.layout;
+		hexbin.maximum = rolledUpHexPoints.maxHexPoints;
+    hexbin.imageCenters = imageCenters;
 
-		// Key outputs.
-		hexGenerator.layout = rolledUpHexPoints.layout;
-		hexGenerator.maximum = rolledUpHexPoints.maxHexPoints;
+		return hexbin;
 
-		return hexGenerator;
 	};
 
 	// Exposed.
+  hexgrid.extent = function(_) {
+    return arguments.length ? ((extent = _), hexgrid) : extent;
+  };
+
 	hexgrid.geography = function(_) {
 		return arguments.length ? ((geography = _), hexgrid) : geography;
 	};
@@ -74,8 +71,8 @@ export default function() {
 		return arguments.length ? ((hexRadius = _), hexgrid) : hexRadius;
 	};
 
-	hexgrid.geoStitched = function(_) {
-		return arguments.length ? ((geoStitched = _), hexgrid) : geoStitched;
+	hexgrid.precision = function(_) {
+		return arguments.length ? ((precision = clampPrecision(_)), hexgrid) : precision;
 	};
 
 	return hexgrid;
