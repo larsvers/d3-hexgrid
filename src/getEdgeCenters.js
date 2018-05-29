@@ -17,10 +17,7 @@ export default function(centers, image, size, precision) {
   return centers
     .filter(el => {
       return (
-        el[0] >= 0 && el[0] <= w &&
-        el[1] >= 0 && el[1] <= h &&
-        image[Math.floor(precision * el[0]) + w * Math.floor(precision * el[1])]
+        image[Math.floor(precision * el.x) + w * Math.floor(precision * el.y)]
       );
-    })
-    .map((el,i) => ({ id: i, x: el[0], y: el[1], gridpoint: 1, cover: 1 }));
+    });
 }
