@@ -1,4 +1,4 @@
-import { clampLayoutPrecision } from './utils'
+import { clampLayoutPrecision } from './utils';
 
 import setHexGenerator from './setHexGenerator';
 import getImageData from './getImageData';
@@ -11,44 +11,8 @@ import addCoverToCenters from './addCoverToCenters';
 
 import processUserData from './processUserData';
 import rollupHexPoints from './rollupHexPoints';
+import fillCover from './fillCover';
 
-
-
-
-/**
- * Produce corner points for a pointy hexagon.
- * @param  {Object} center Hexagon center position.
- * @param  {number} r      Radius of hexagon.
- * @param  {number} i      Index of point to calculate.
- * @return {Object}        Hexagon corner position.
- */
-function pointyHexCorner(center, r, i) {
-  const point = {};
-  const angleDegree = 60 * i - 30;
-  const angleRadian = Math.PI / 180 * angleDegree;
-  point.x = center.x + r * Math.cos(angleRadian);
-  point.y = center.y + r * Math.sin(angleRadian);
-  return point;
-}
-
-/**
- * Draw a hexagon.
- * @param  {Object} context The canvas context.
- * @param  {Object} corners Hexagon corner positions.
- * @param  {String} colour  Fill colour.
- * @return {[type]}         undefined
- */
-function hexDraw(context, corners, colour) {
-  context.beginPath();
-  corners.forEach(d => {
-    d === 0 
-      ? context.moveTo(d.x, d.y)
-      : context.lineTo(d.x, d.y);
-  });
-  context.closePath();
-  context.fillStyle = colour;
-  context.fill();
-}
 
 
 
@@ -69,7 +33,7 @@ export default function() {
 
 
     // Identify hexagons to draw.
-    
+
     const hexbin = setHexGenerator(extent, hexRadius);
 
     const size = hexbin.size();
@@ -77,10 +41,10 @@ export default function() {
     const centers = hexbin.centers();
 
     const imageDataCenter = getImageData(
-      size, 
-      layoutPrecision, 
-      pathGenerator, 
-      geography, 
+      size,
+      layoutPrecision,
+      pathGenerator,
+      geography,
       hexRadius,
       'fill'
     );
@@ -91,26 +55,26 @@ export default function() {
     // Identify edge hexagons and calculate image overlap ratio.
 
     const imageDataEdges = getImageData(
-      size, 
-      layoutPrecision, 
-      pathGenerator, 
-      geography, 
+      size,
+      layoutPrecision,
+      pathGenerator,
+      geography,
       hexRadius,
       'stroke'
     );
 
     const imageEdges = getEdgeCenters(
-      imageCenters, 
-      imageDataEdges, 
-      size, 
+      imageCenters,
+      imageDataEdges,
+      size,
       layoutPrecision
     );
 
     const edgeTools = drawEdgeOverlap(
-      edgePrecision, 
-      size, 
-      pathGenerator, 
-      geography, 
+      edgePrecision,
+      size,
+      pathGenerator,
+      geography,
       hexRadius
     );
 
@@ -119,7 +83,7 @@ export default function() {
     // Update imageCenters with cover.
     imageCenters = addCoverToCenters(imageCenters, imageEdgesCover);
 
-      
+
     // Prepare user data to augment layout.
 
 		const userDataPoints = processUserData(userData, projection, userVariables);
@@ -130,10 +94,11 @@ export default function() {
 
 		const rolledUpHexPoints = rollupHexPoints(hexPoints);
 
+    const layout = fillCover(rolledUpHexPoints.layout);
 
     // Augment hexbin generator.
 
-		hexbin.layout = rolledUpHexPoints.layout;
+		hexbin.layout = layout;
 		hexbin.maximum = rolledUpHexPoints.maxHexPoints;
     hexbin.imageCenters = imageCenters;
 

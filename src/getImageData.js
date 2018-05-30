@@ -11,8 +11,8 @@
  */
 export default function(size, precision, pathGen, geo, r, action) {
 
-  const canvas = document.createElement('canvas');
-  // const canvas = d3.select('body').append('canvas').node();
+  // const canvas = document.createElement('canvas');
+  const canvas = d3.select('body').append('canvas').node();
   canvas.width = size[0] * precision, canvas.height = size[1] * precision;
 
   const context = canvas.getContext('2d');
@@ -20,10 +20,12 @@ export default function(size, precision, pathGen, geo, r, action) {
 
   const canvasPath = pathGen.context(context);
   
-  // Fill.
+  // Draw.
   context.beginPath();
     canvasPath(geo);
   if (action === 'fill' ) {
+    // context.lineWidth = 2 * r;
+    // context.stroke();
     context.fill()
   } else if (action === 'stroke') {
     context.lineWidth = 2 * r;
