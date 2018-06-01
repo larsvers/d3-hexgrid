@@ -13,6 +13,10 @@ export default function(points) {
   // Establish a minimum cover proxy.
   const minCover = min(points, d => d.cover) * 0.9;
 
+  // Initialise maxima.
+  let maximumPoints = 0;
+  let maximumPointsWt = 0;
+
   // All layout points w/o cover will 
   // get assigned the minimum cover proxy. 
   // All datapoints will be weighted by 
@@ -26,8 +30,13 @@ export default function(points) {
       point.cover = minCover;
       point.datapointsWt = point.datapoints * (1/point.cover);
     }
+
+    // Update maxima.
+    maximumPoints   = Math.max(maximumPoints,   point.datapoints);
+    maximumPointsWt = Math.max(maximumPointsWt, point.datapointsWt);
+
   }
 
-  return points;
+  return { layout: points, maximumPoints, maximumPointsWt };
 
 }

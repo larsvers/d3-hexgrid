@@ -7,12 +7,13 @@
  * @param  {Object} geo         GeoJSON representing the object to tesselate.
  * @param  {number} r           Hexagon radius.
  * @param  {string} action      Drawing action `fill` or `stroke`.
+ * @param  {number} band        Size of border.
  * @return {Uint8ClampedArray}  Array of B values (from RGBA) per pixel.
  */
-export default function(size, precision, pathGen, geo, r, action) {
+export default function(size, precision, pathGen, geo, r, action, band) {
 
-  // const canvas = document.createElement('canvas');
-  const canvas = d3.select('body').append('canvas').node();
+  const canvas = document.createElement('canvas');
+  // const canvas = d3.select('body').append('canvas').node();
   canvas.width = size[0] * precision, canvas.height = size[1] * precision;
 
   const context = canvas.getContext('2d');
@@ -22,10 +23,12 @@ export default function(size, precision, pathGen, geo, r, action) {
   
   // Draw.
   context.beginPath();
-    canvasPath(geo);
+  canvasPath(geo);
   if (action === 'fill' ) {
-    // context.lineWidth = 2 * r;
-    // context.stroke();
+    if (band) {
+      context.lineWidth = band * r; 
+      context.stroke();
+    }
     context.fill()
   } else if (action === 'stroke') {
     context.lineWidth = 2 * r;

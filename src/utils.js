@@ -14,3 +14,16 @@ export function clampLayoutPrecision(p) {
   }
   return p;
 }
+
+/**
+ * Checks and sets the edgeBand value to greater than 0.
+ * @param  {number} v   User defined edge band value.
+ * @return {number}     Set edge band value.
+ */
+export function clampEdgeBand(v) {
+  if (v >= 0) { 
+    return v;
+  } 
+  console.warn("Edge band value should be > 0. Coerced to 0.");
+  return 0;
+}

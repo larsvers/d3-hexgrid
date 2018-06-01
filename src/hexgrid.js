@@ -1,4 +1,4 @@
-import { clampLayoutPrecision } from './utils';
+import { clampLayoutPrecision, clampEdgeBand } from './utils';
 
 import setHexGenerator from './setHexGenerator';
 import getImageData from './getImageData';
@@ -10,11 +10,8 @@ import overlapRatio from './overlapRatio';
 import addCoverToCenters from './addCoverToCenters';
 
 import processUserData from './processUserData';
-import rollupHexPoints from './rollupHexPoints';
-import fillCover from './fillCover';
-
-
-
+import rollupPoints from './rollupPoints';
+import rollupDensity from './rollupDensity';
 
 
 export default function() {
@@ -26,7 +23,8 @@ export default function() {
 		pathGenerator,
 		hexRadius = 4,
 		layoutPrecision = 1,
-    edgePrecision = 1;
+    edgePrecision = 1,
+    edgeBand = 0;
 
 	// Main.
 	const hexgrid = function(userData, userVariables) {
@@ -46,7 +44,8 @@ export default function() {
       pathGenerator,
       geography,
       hexRadius,
-      'fill'
+      'fill',
+      edgeBand
     );
 
     let imageCenters = getImageCenters(centers, imageDataCenter, size, layoutPrecision);
@@ -60,7 +59,8 @@ export default function() {
       pathGenerator,
       geography,
       hexRadius,
-      'stroke'
+      'stroke',
+      edgeBand
     );
 
     const imageEdges = getEdgeCenters(
@@ -92,14 +92,15 @@ export default function() {
 
 		const hexPoints = hexbin(mergedData);
 
-		const rolledUpHexPoints = rollupHexPoints(hexPoints);
+		let points = rollupPoints(hexPoints);
 
-    const layout = fillCover(rolledUpHexPoints.layout);
+    points = rollupDensity(points);
 
     // Augment hexbin generator.
 
-		hexbin.layout = layout;
-		hexbin.maximum = rolledUpHexPoints.maxHexPoints;
+		hexbin.layout       = points.layout;
+    hexbin.maximum      = points.maximumPoints;
+		hexbin.maximumWt    = points.maximumPointsWt;
     hexbin.imageCenters = imageCenters;
 
 		return hexbin;
@@ -131,8 +132,12 @@ export default function() {
     return arguments.length ? ((layoutPrecision = clampLayoutPrecision(_)), hexgrid) : layoutPrecision;
   };
 
-	hexgrid.edgePrecision = function(_) {
-		return arguments.length ? ((edgePrecision = _), hexgrid) : edgePrecision;
+  hexgrid.edgePrecision = function(_) {
+    return arguments.length ? ((edgePrecision = _), hexgrid) : edgePrecision;
+  };
+
+	hexgrid.edgeBand = function(_) {
+		return arguments.length ? ((edgeBand = clampEdgeBand(_)), hexgrid) : edgeBand;
 	};
 
 	return hexgrid;

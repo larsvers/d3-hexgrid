@@ -9,7 +9,7 @@
 export default function(hexPoints) {
 
 	// Init maximum prop.
-	let maxHexPoints = 0;
+	// let maximumPoints = 0;
 
 	// Optimised decrementing loop as potentially many points.
 	for (let i = hexPoints.length - 1; i >= 0; i--) {
@@ -31,10 +31,11 @@ export default function(hexPoints) {
     hexPoints[i].datapoints = hexPoints[i].length;
     hexPoints[i].cover = cover;
 		hexPoints[i].gridpoint = gridpoint || 0;
-		maxHexPoints = hexPoint.length > maxHexPoints ? hexPoint.length : maxHexPoints;
+		// maximumPoints = hexPoint.length > maximumPoints ? hexPoint.length : maximumPoints;
 
 	}
 
-	return { layout: hexPoints, maxHexPoints };
+  // return { layout: hexPoints, maximumPoints };
+	return hexPoints;
 
 }
