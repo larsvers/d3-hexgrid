@@ -1,14 +1,14 @@
 /**
  * Checks which pixel of the image are filled
  * returning pixel positions to draw hexes on.
- * @param  {Array} size         Width and height of base element.
- * @param  {number} precision   Ratio of original size to scale hidden canvas.
- * @param  {function} pathGen   D3 path generator function.
- * @param  {Object} geo         GeoJSON representing the object to tesselate.
- * @param  {number} r           Hexagon radius.
- * @param  {string} action      Drawing action `fill` or `stroke`.
- * @param  {number} band        Size of border.
- * @return {Uint8ClampedArray}  Array of B values (from RGBA) per pixel.
+ * @param  {Array}    size        Width and height of base element.
+ * @param  {number}   precision   Ratio of original size to scale hidden canvas.
+ * @param  {function} pathGen     D3 path generator function.
+ * @param  {Object}   geo         GeoJSON representing the object to tesselate.
+ * @param  {number}   r           Hexagon radius.
+ * @param  {string}   action      Drawing action `fill` or `stroke`.
+ * @param  {number}   band        Size of border.
+ * @return {Uint8ClampedArray}  Array of A values (from RGBA) per pixel.
  */
 export default function(size, precision, pathGen, geo, r, action, band) {
 

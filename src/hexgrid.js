@@ -1,19 +1,21 @@
-import { clampLayoutPrecision, clampEdgeBand } from './utils';
+import { clampLayoutPrecision, convertToMin } from './utils';
 
 import setHexGenerator from './setHexGenerator';
 import getImageData from './getImageData';
 import getImageCenters from './getImageCenters';
 
 import getEdgeCenters from './getEdgeCenters';
-import drawEdgeOverlap from './drawEdgeOverlap';
-import overlapRatio from './overlapRatio';
-import addCoverToCenters from './addCoverToCenters';
+import getEdgeTools from './getEdgeTools';
+import getCover from './getCover';
+import addCover from './addCover';
 
-import processUserData from './processUserData';
+import prepUserData from './prepUserData';
 import rollupPoints from './rollupPoints';
 import rollupDensity from './rollupDensity';
 
-
+/**
+ * Main hexgrid component.
+ */
 export default function() {
 
 	// Init exposed.
@@ -24,11 +26,18 @@ export default function() {
 		hexRadius = 4,
 		layoutPrecision = 1,
     edgePrecision = 1,
-    edgeBand = 0;
+    edgeBand = 0,
+    geoKeys;
 
-	// Main.
+	/**
+   * hexgrid function producing the layout.
+   * @param  {Array} userData       Datapoints to visualise. 
+   *                                One datum represents one location.
+   * @param  {Array} userVariables  Optional array of object keys to be
+   *                                included in the final layout hex data. 
+   * @return {function/Object}      Augmented hexbin generator.
+   */
 	const hexgrid = function(userData, userVariables) {
-
 
     // Identify hexagons to draw.
 
@@ -38,7 +47,7 @@ export default function() {
 
     const centers = hexbin.centers();
 
-    const imageDataCenter = getImageData(
+    const imageData = getImageData(
       size,
       layoutPrecision,
       pathGenerator,
@@ -48,8 +57,12 @@ export default function() {
       edgeBand
     );
 
-    let imageCenters = getImageCenters(centers, imageDataCenter, size, layoutPrecision);
-
+    let imageCenters = getImageCenters(
+      centers,
+      imageData,
+      size,
+      layoutPrecision
+    );
 
     // Identify edge hexagons and calculate image overlap ratio.
 
@@ -70,7 +83,7 @@ export default function() {
       layoutPrecision
     );
 
-    const edgeTools = drawEdgeOverlap(
+    const edgeTools = getEdgeTools(
       edgePrecision,
       size,
       pathGenerator,
@@ -78,29 +91,34 @@ export default function() {
       hexRadius
     );
 
-    const imageEdgesCover = imageEdges.map(d => overlapRatio(d, edgeTools, edgePrecision));
+    const imageEdgesCover = imageEdges.map(d => {
+      return getCover(d, edgeTools, edgePrecision)
+    });
 
-    // Update imageCenters with cover.
-    imageCenters = addCoverToCenters(imageCenters, imageEdgesCover);
-
+    imageCenters = addCover(imageCenters, imageEdgesCover);
 
     // Prepare user data to augment layout.
 
-		const userDataPoints = processUserData(userData, projection, userVariables);
+		const userDataPrepped = prepUserData(
+      userData, 
+      projection, 
+      geoKeys, 
+      userVariables
+    );
 
-		const mergedData = imageCenters.concat(userDataPoints);
+		const mergedData = imageCenters.concat(userDataPrepped);
 
 		const hexPoints = hexbin(mergedData);
 
-		let points = rollupPoints(hexPoints);
+		let hexData = rollupPoints(hexPoints);
 
-    points = rollupDensity(points);
+    hexData = rollupDensity(hexData);
 
     // Augment hexbin generator.
 
-		hexbin.layout       = points.layout;
-    hexbin.maximum      = points.maximumPoints;
-		hexbin.maximumWt    = points.maximumPointsWt;
+		hexbin.layout       = hexData.layout;
+    hexbin.maximum      = hexData.maximumPoints;
+		hexbin.maximumWt    = hexData.maximumPointsWt;
     hexbin.imageCenters = imageCenters;
 
 		return hexbin;
@@ -133,11 +151,15 @@ export default function() {
   };
 
   hexgrid.edgePrecision = function(_) {
-    return arguments.length ? ((edgePrecision = _), hexgrid) : edgePrecision;
+    return arguments.length ? ((edgePrecision = convertToMin(_, 'Edge precision', 0.3)), hexgrid) : edgePrecision;
   };
 
-	hexgrid.edgeBand = function(_) {
-		return arguments.length ? ((edgeBand = clampEdgeBand(_)), hexgrid) : edgeBand;
+  hexgrid.edgeBand = function(_) {
+    return arguments.length ? ((edgeBand = convertToMin(_, 'Edge band', 0)), hexgrid) : edgeBand;
+  };
+
+	hexgrid.geoKeys = function(_) {
+		return arguments.length ? ((geoKeys = _), hexgrid) : geoKeys;
 	};
 
 	return hexgrid;

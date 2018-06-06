@@ -1,41 +1,17 @@
+import { pointyHexCorner, hexDraw } from './utils';
 
 /**
- * Produce corner points for a pointy hexagon.
- * @param  {Object} center Hexagon center position.
- * @param  {number} r      Radius of hexagon.
- * @param  {number} i      Index of point to calculate.
- * @return {Object}        Hexagon corner position.
+ * Produe the canvas image of a orrectly sized and scaled hexagon, 
+ * the canvas image of the desired base image as well as a context
+ * to concoct the overlap image.
+ * @param  {number}   precision   Scale for single hexagon-map image.
+ * @param  {Array}    size        Width and height of base element.
+ * @param  {function} pathGen     D3 path generator function.
+ * @param  {Object}   geo         GeoJSON representing the object to tesselate.
+ * @param  {number}   r           Hexagon radius.
+ * @return {Object}               The hex & geo image plus the context to use.
  */
-function pointyHexCorner(center, r, i) {
-  const point = {};
-  const angleDegree = 60 * i - 30;
-  const angleRadian = Math.PI / 180 * angleDegree;
-  point.x = center.x + r * Math.cos(angleRadian);
-  point.y = center.y + r * Math.sin(angleRadian);
-  return point;
-}
-
-/**
- * Draw a hexagon.
- * @param  {Object} context The canvas context.
- * @param  {Object} corners Hexagon corner positions.
- * @param  {String} colour  Fill colour.
- * @return {[type]}         undefined
- */
-function hexDraw(context, corners, colour) {
-  context.beginPath();
-  corners.forEach(d => {
-    d === 0 
-      ? context.moveTo(d.x, d.y)
-      : context.lineTo(d.x, d.y);
-  });
-  context.closePath();
-  context.fillStyle = colour;
-  context.fill();
-}
-
-
-export default function(precision, size, geoPath, geo, r) {
+export default function(precision, size, pathGen, geo, r) {
 
   // 1) Draw a hex with the correct radius at 0, 0.
 
@@ -59,7 +35,7 @@ export default function(precision, size, geoPath, geo, r) {
 
   // Draw the hexagon.
   contextHex.translate(w/2,h/2)
-  hexDraw(contextHex, hexCorners, 'red');
+  hexDraw(contextHex, hexCorners, 'red', 'fill');
 
 
   // 2) Draw the image.
@@ -74,18 +50,18 @@ export default function(precision, size, geoPath, geo, r) {
   //   .node();
   const contextImage = canvasImage.getContext('2d');
   
-  // Set geoPath's context.
-  geoPath.context(contextImage);
+  // Set the context for the path generator for use with Canvas.
+  pathGen.context(contextImage);
 
   // Draw the image.
   contextImage.scale(precision, precision)
   contextImage.beginPath();
-    geoPath(geo);
+    pathGen(geo);
     contextImage.fillStyle = 'blue';
   contextImage.fill();
 
-  // Reset geoPath's context.
-  geoPath.context(null);
+  // Reset the pathGenerators context.
+  pathGen.context(null);
 
 
   // 3) Create context to combine images;
@@ -93,8 +69,7 @@ export default function(precision, size, geoPath, geo, r) {
   // const contextMix = d3.select('body').append('canvas')
   //   .attr('width', w).attr('height', h).node().getContext('2d');
   const canvasMix = document.createElement('canvas');
-  canvasMix.width = w;
-  canvasMix.height = h;
+  canvasMix.width = w; canvasMix.height = h;
   const contextMix = canvasMix.getContext('2d');
 
 

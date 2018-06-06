@@ -1,41 +1,18 @@
-/**
- * Produce corner points for a pointy hexagon.
- * @param  {Object} center Hexagon center position.
- * @param  {number} r      Radius of hexagon.
- * @param  {number} i      Index of point to calculate.
- * @return {Object}        Hexagon corner position.
- */
-function pointyHexCorner(center, r, i) {
-  const point = {};
-  const angleDegree = 60 * i - 30;
-  const angleRadian = Math.PI / 180 * angleDegree;
-  point.x = center.x + r * Math.cos(angleRadian);
-  point.y = center.y + r * Math.sin(angleRadian);
-  return point;
-}
+
+// // Debug
+// import { pointyHexCorner, hexDraw } from './utils';
+
 
 /**
- * Draw a hexagon.
- * @param  {Object} context The canvas context.
- * @param  {Object} corners Hexagon corner positions.
- * @param  {String} colour  Fill colour.
- * @return {[type]}         undefined
+ * Calculates the cover for a single hexagon by 
+ * overlaying the map at the given position. 
+ * @param  {Object} edge      The datum representing the edge center.
+ * @param  {Object} tools     The image and drawing tools 
+ *                            to create the overlap image.
+ * @param  {number} precision The scaling factor for the image 
+ *                            at the given hex radius.
+ * @return {Object}           The cover updated egde center datum.
  */
-function hexDraw(context, corners, colour) {
-  context.beginPath();
-  corners.forEach(d => {
-    d === 0 
-      ? context.moveTo(d.x, d.y)
-      : context.lineTo(d.x, d.y);
-  });
-  context.closePath();
-  context.strokeStyle = colour;
-  context.stroke();
-}
-
-
-
-
 export default function (edge, tools, precision) {
 
   const {canvasHex, canvasImage, contextMix} = tools;
@@ -60,7 +37,7 @@ export default function (edge, tools, precision) {
   // contextImage.fill();
 
   // // Hexagons
-  // hexDraw(contextImage, hexCorners, 'red')
+  // hexDraw(contextImage, hexCorners, 'red', 'stroke')
 
   // // Debug ↑ ---------------------
 
@@ -82,7 +59,7 @@ export default function (edge, tools, precision) {
   // Get the image data.
   const imageData = contextMix.getImageData(0,0,w,h).data;
 
-  // Clear the canvas and Reset the composite type in preperation 
+  // Clear the canvas and reset the composite type in preperation 
   // for the next overlap (http://bit.do/ekDx4).
   contextMix.clearRect(0,0,w,h);
   contextMix.globalCompositeOperation = 'source-over';

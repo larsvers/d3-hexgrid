@@ -1,7 +1,5 @@
 /**
  * Checks for each center if it covers a pixel in the image.
- * Checks only for centers that are within the bounds of width and height.
- * Note, this can be optimised (for loop instead of filter all).
  * @param  {Array}              centers     Hexagon centers covering the
  *                                          breadth of the drawing canvas.
  * @param  {Uint8ClampedArray}  image       Pixels indicating fill.
@@ -17,7 +15,8 @@ export default function(centers, image, size, precision) {
   return centers
     .filter(el => {
       return (
-        image[Math.floor(precision * el.x) + w * Math.floor(precision * el.y)]
+        image[Math.floor(precision * el.x) + w * 
+              Math.floor(precision * el.y)]
       );
     });
 }

@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "d3-array": "^1.2.1",
-    "d3-hexbin": "^0.2.2"
+    "d3-hexbin": "^0.2.2",
+    "d3-polygon": "^1.0.3"
   }
 }

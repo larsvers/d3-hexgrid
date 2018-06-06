@@ -1,41 +1,32 @@
 /**
- * Roll up number of datapoints per hexagon, 
- * add cover and calculate maximum number of hex points.
- * @param  {Array} hexPoints 				Array of arrays of grid and 
- *                               		datapoints per hexagon.
- * @return {Array}            			Array of arrays of datapoints 
+ * Bring each hexpoint into shape, by rolling up number of datapoints
+ * per hexagon, add cover and setting apart original centers from 
+ * centers added by user-data.
+ * @param  {Array} hexPoints        Array of arrays of grid and
+ *                                  datapoints per hexagon.
+ * @return {Array}                  Array of arrays of datapoints
  *                                  per hexagon plus additional props.
  */
 export default function(hexPoints) {
-
-	// Init maximum prop.
-	// let maximumPoints = 0;
-
-	// Optimised decrementing loop as potentially many points.
-	for (let i = hexPoints.length - 1; i >= 0; i--) {
-
-		// Cache current element and prep cover variable.
-		const hexPoint = hexPoints[i];
+  for (let i = 0; i < hexPoints.length; i++) {
+    // Cache current element and prep cover variable.
+    const hexPoint = hexPoints[i];
     let cover, gridpoint;
 
-		// Remove grid points and cache cover.
-		for (let j = hexPoint.length - 1; j >= 0; --j) {
-			if (hexPoint[j].gridpoint == 1) {
+    // Remove grid points and cache cover.
+    for (let j = 0; j < hexPoint.length; j++) {
+      if (hexPoint[j].gridpoint == 1) {
         cover = hexPoint[j].cover;
         gridpoint = 1;
-				hexPoint.splice(j, 1);
-			}
-		}
+        hexPoint.splice(j, 1);
+      }
+    }
 
-		// Augment with new properties.
+    // Augment with new properties.
     hexPoints[i].datapoints = hexPoints[i].length;
     hexPoints[i].cover = cover;
-		hexPoints[i].gridpoint = gridpoint || 0;
-		// maximumPoints = hexPoint.length > maximumPoints ? hexPoint.length : maximumPoints;
+    hexPoints[i].gridpoint = gridpoint || 0;
+  }
 
-	}
-
-  // return { layout: hexPoints, maximumPoints };
-	return hexPoints;
-
+  return hexPoints;
 }
