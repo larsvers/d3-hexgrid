@@ -26,20 +26,24 @@
     "postpublish": "zip -j dist/d3-hexgrid.zip -- LICENSE README.md dist/d3-hexgrid.js dist/d3-hexgrid.min.js"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.7.0",
-    "rollup": "^0.57.1",
-    "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-license": "^0.6.0",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "tap-spec": "^4.1.2",
-    "tape": "^4.9.0",
-    "uglify-js": "^3.3.28"
+    "babel-core": "^6.26",
+    "babel-plugin-external-helpers": "^6.22",
+    "babel-preset-env": "^1.7",
+    "d3-geo": "^1.10",
+    "jsdom": "^11.11",
+    "canvas": "^1.6",
+    "rollup": "^0.57",
+    "rollup-plugin-babel": "^3.0",
+    "rollup-plugin-license": "^0.6",
+    "rollup-plugin-node-resolve": "^3.3",
+    "tap-spec": "^4.1",
+    "tape": "^4.9",
+    "topojson": "^3.0",
+    "uglify-js": "^3.4"
   },
   "dependencies": {
-    "d3-array": "^1.2.1",
-    "d3-hexbin": "^0.2.2",
-    "d3-polygon": "^1.0.3"
+    "d3-array": "^1.2",
+    "d3-hexbin": "^0.2",
+    "d3-polygon": "^1.0"
   }
 }

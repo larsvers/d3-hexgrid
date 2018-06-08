@@ -1,161 +1,230 @@
-const tape = require('tape');
+// Libraries.
+const tape = require('tape'),
+      d3Geo = require('d3-geo'),
+      topojson = require('topojson'),
+      JSDOM = require('jsdom').JSDOM,
+      hexgrid = require('../').hexgrid;
 
-tape('the hexgrid function', test => {
+// Data.
+const luxGeo = require('./data/lux_adm0.json'),
+      luxCities = require('./data/lux_cities.json');
+
+// Helper functions.
+
+/**
+ * Check if array all object properties are congrunent.
+ * @param  {Array} keyList  Array of properties for each object.
+ * @return {boolean}        true for congruent properties • false for deviance.
+ */
+function getKeyEquality(keyList) {
+  const keyEquality = []
+  for(let i = 0; i < keyList.length; i++) {
+    if (i==0) continue;    
+    var equality = keyList[i-1].join() === keyList[i].join();
+    keyEquality.push(equality);
+  }
+  return Array.from(new Set(keyEquality))[0];
+}
+
+/**
+ * Get unique object properties across array.
+ * @param  {Array} keys   Array of objects with keys to test.
+ * @return {Array}        Array of unique keys.      
+ */
+function getUniqueKeys(layout) {
+  const allKeys = layout.reduce((res, el) => { 
+    return res.concat(Object.keys(el));
+  },[]);
+
+  return Array.from(new Set(allKeys));
+}
+
+// Fake dom for the canvas methods using `document`.
+const dom = new JSDOM('<!DOCTYPE html><title>fake dom</title>');
+global.document = dom.window.document;
+
+// Set up the hexgrid
+const w = 100, h = 100, geo = luxGeo;
+
+const projection = d3Geo.geoMercator().fitSize([w, h], luxGeo);
+const geoPath = d3Geo.geoPath().projection(projection);
+
+const t = hexgrid()
+  .extent([w, h])
+  .geography(geo)
+  .projection(projection)
+  .pathGenerator(geoPath)
+  .hexRadius(4);
+  
+const hex = t([]);
+const hexData = t(luxCities);
+const hexDataWithKeys = t(luxCities, ['Name', 'Population']);
+
+
+tape('The hexgrid function returns an object', test => {
   let actual, expected;
 
-  actual = 1;
-  expected = 1;
-  test.equal(actual, expected, 'needs some tests');
+  actual = hex.layout.constructor.name, 
+  expected = 'Array';
+  test.equal(actual, expected, 'with a property called "layout" of type "Array".');
+
+  actual = hex.imageCenters.constructor.name, 
+  expected = 'Array';
+  test.equal(actual, expected, 'with a property called "imageCenters" of type "Array".');
+
+  actual = typeof hex.maximum, 
+  expected = 'number';
+  test.equal(actual, expected, 'with a property called "maximum" of type "number".');
+
+  actual = typeof hex.maximumWt, 
+  expected = 'number';
+  test.equal(actual, expected, 'with a property called "maximumWt" of type "number".');
+
   test.end();
 });
 
+tape('The hexgrid\'s layout array holds objects', test => {
+  let actual, expected;
+
+  // Check all objects share the same keys.
+  const layout = hex.layout;
+  const keyArray = layout.map(d => Object.keys(d));
+
+  actual = getKeyEquality(keyArray);
+  expected = true;
+  test.equal(actual, expected, 'with the same properties.');
+
+  // Check unique key names.
+  const uniqueKeys = getUniqueKeys(layout);
+
+  actual = uniqueKeys.length;
+  expected = 6;
+  test.equal(actual, expected, 'with six keys if no user data is supplied.');
+
+  expected = true;
+  actual = uniqueKeys.includes('x');
+  test.equal(actual, expected, 'with an "x" property.');
+  actual = uniqueKeys.includes('y');
+  test.equal(actual, expected, 'with a "y" property.');
+  actual = uniqueKeys.includes('cover');
+  test.equal(actual, expected, 'with a "cover" property.');
+  actual = uniqueKeys.includes('gridpoint');
+  test.equal(actual, expected, 'with a "gridpoint" property.');
+  actual = uniqueKeys.includes('datapoints');
+  test.equal(actual, expected, 'with a "datapoints" property.');
+  actual = uniqueKeys.includes('datapointsWt');
+  test.equal(actual, expected, 'with a "datapointsWt" property.');
+
+  test.end();
+});
+
+tape('The hexgrid function run with a geography returns an object', test => {
+  let actual, expected;
+
+  actual = hex.layout.length > 90;
+  expected = true;
+  test.equal(actual, expected, 'with a "layout" array of length greater than a specifically expected number.');
+
+  actual = hex.imageCenters.length > 90;
+  expected = true;
+  test.equal(actual, expected, 'with an "imageCenters" array of length greater than a specifically expected number.');
+
+  test.end();
+});
+
+tape('The hexgrid function run with a geography and user data returns an object', test => {
+  let actual, expected;
+
+  actual = hexData.maximum;
+  expected = 1;
+  test.equal(actual, expected, 'with the expected maximum of datapoints per hexagon.')
+
+  actual = hexData.maximumWt > hexData.maximum;
+  expected = true;
+  test.equal(actual, expected, 'with a larger weighted maximum than unweighted maximum of datapoints per hexagon.')
+
+  // Check length of hexagons with datapoints.
+  const layout = hexData.layout;
+  const points = layout.filter(d => d.datapoints).map(d => d.length > 0);
+  let length = Array.from(new Set(points))[0];
+
+  actual = length;
+  expected = true;
+  test.equal(actual, expected, 'with a "layout" property holding hexagons with a length greater than 0 if they contain datapoints.')
+
+  // Check lengthh of hexagons without datapoints.
+  const noPoints = layout.filter(d => !d.datapoints).map(d => d.length > 0);
+  length = Array.from(new Set(noPoints))[0];
+
+  actual = length;
+  expected = false;
+  test.equal(actual, expected, 'with a "layout" property holding hexagons with a length of 0 if they do not contain datapoints.')
+
+  // Check cover of external hexagons.
+  const edges = layout
+    .filter(d => d.cover < 1 && d.datapoints)
+    .map(d => d.datapointsWt > d.datapoints);
+
+  actual = Array.from(new Set(edges))[0];
+  expected = true;
+  test.equal(actual, expected, 'with a "layout" property holding edge hexagons with up-weighted datapoints.')
+
+  // Check cover of internal hexagons.
+  const internal = layout
+    .filter(d => d.cover === 1 && d.datapoints)
+    .map(d => d.datapointsWt === 1);
+
+  actual = Array.from(new Set(edges))[0];
+  expected = true;
+  test.equal(actual, expected, 'with a "layout" property holding internal hexagons with no up-weighted datapoints.')
+
+  test.end()
+});
+
+tape('If supplied with a geography, user data and user variables, only the layout objects WITH datapoints', test => {
+  let actual, expected;
+
+  // Check user variables have been passed through.
+  const filter = hexDataWithKeys.layout.filter(d => d.datapoints);
+  const keyArray = filter.map(d => Object.keys(d));
 
 
-// const tape = require('tape'),
-// 			d3Geo = require('d3-geo'),
-// 			topojson = require('topojson'),
-// 			luxCities = require('./data/lux_cities.json'),
-// 			luxGeo = require('./data/lux_adm0.json'),
-// 			rusGeo = require('./data/rus_chukotka.json'),
-// 			worldTopo = require('./data/world_topo.json'),
-//     	hexgrid = require('../').hexgrid;
+  actual = getKeyEquality(keyArray);
+  expected = true;
+  test.equal(actual, expected, 'share the same properties.');
+
+  // Check unique key names.
+  const uniqueKeys = getUniqueKeys(filter);
 
 
-// // Test types of exposed elements.
+  actual = uniqueKeys.length;
+  expected = 7;
+  test.equal(actual, expected, 'have seven keys (all keys + Array index 0) if e maximum number of datapoints per hex is 1.');
 
-// const projectLux = d3Geo.geoMercator().fitSize([100, 100], luxGeo);
-// const geoPathLux = d3Geo.geoPath().projection(projectLux);
+  // // layout > filter datapoints > map Object.keys(d[0]) > getKeyEquality() < test > getUniqueKeys() < test
+  const datapointKeyArray = filter.map(d => Object.keys(d[0]));
 
-// const tLux = hexgrid()
-// 	.pathGenerator(geoPathLux)
-// 	.projection(projectLux)
-// 	.geography(luxGeo)
-// 	.hexRadius(10);
+  actual = getKeyEquality(datapointKeyArray);
+  expected = true;
+  test.equal(actual, expected, 'hold datapoint objects with the same properties.');
 
-// const hexGridLux = tLux(luxCities, ['Name', 'Population']);
+  // Check unique key names.
+  const datapoints = filter.map(d => d[0]);
+  const datapointsUniqueKeys = getUniqueKeys(datapoints);
 
-// tape('The hexgrid() function exposes', test => {
+  actual = datapointsUniqueKeys.length;
+  expected = 4;
+  test.equal(actual, expected, 'hold datapoint objects with the expected number of properties.');
 
-// 	let actual, expected;
-
-//   actual = typeof hexGridLux.maximum, 
-// 	expected = 'number';
-//   test.equal(actual, expected, 'a property called "maximum" of type "number".');
-
-//   actual = hexGridLux.layout.constructor.name, 
-//   expected = 'Array';
-//   test.equal(actual, expected, 'a property called "layout" of type "Array".');
-
-//   const iRand = Math.floor(Math.random() * (hexGridLux.layout.length-1));
-
-// 	expected = true;
-
-// 	actual = hexGridLux.layout[iRand].hasOwnProperty('x');
-//   test.equal(actual, expected, 'an array of layout objects with an "x" property.');
-
-// 	actual = hexGridLux.layout[iRand].hasOwnProperty('y'), 
-//   test.equal(actual, expected, 'an array of layout objects with a "y" property.');
-
-// 	actual = hexGridLux.layout[iRand].hasOwnProperty('datapoints'), 
-//   test.equal(actual, expected, 'an array of layout objects with a "datapoints" property.');
-
-//   test.end();
-
-// });
+  expected = true;
+  actual = datapointsUniqueKeys.includes('x');
+  test.equal(actual, expected, 'hold datapoint objects with an "x" property.');
+  actual = datapointsUniqueKeys.includes('y');
+  test.equal(actual, expected, 'hold datapoint objects with§ a "y" property.');
+  actual = datapointsUniqueKeys.includes('Name') && datapointsUniqueKeys.includes('Population');
+  test.equal(actual, expected, 'hold datapoint objects with the passed in user variables.');
 
 
-// // Test values of exposed elements.
 
-// tape('The hexgrid() function returns', test => {
-
-// 	let actual, expected;
-
-// 	actual = hexGridLux.maximum, 
-// 	expected = 2;
-//   test.equal(actual, expected, 'the correct maximum of 2 for the test case.');
-
-// 	actual = hexGridLux.layout.length, 
-// 	expected = 18;
-//   test.equal(actual, expected, 'the correct layout length of 18  for the test case.');
-
-//   const hexPointWithData = hexGridLux.layout[0][0];
-
-// 	actual = Object.keys(hexPointWithData).length,
-// 	expected = 4;
-//   test.equal(actual, expected, 'a total of 4 object keys in a user-data populated layout object');
-
-// 	expected = true;
-
-// 	actual = hexPointWithData.hasOwnProperty('Name');
-//   test.equal(actual, expected, 'the user defined variable "Name" in a user-data populated layout object.');
-
-// 	actual = hexPointWithData.hasOwnProperty('Population');
-//   test.equal(actual, expected, 'the user defined variable "Population" in a user-data populated layout object.');
-
-//   test.end();
-
-// });
-
-
-// // Test results of the antimeridian cut / stitch functionality.
-
-// const projectRussia = d3Geo.geoMercator().fitSize([1000, 1000], rusGeo);
-// const geoPathRussia = d3Geo.geoPath().projection(projectRussia);
-
-// const tRus = hexgrid()
-// 	.pathGenerator(geoPathRussia)
-// 	.projection(projectRussia)
-// 	.geography(rusGeo)
-// 	.hexRadius(5);
-
-// const hexGridRus = tRus([]);
-
-// tape('The hexgrid() function run with a GeoJSON cut along the antimeridian', test => {
-
-// 	let actual, expected;
-
-// 	const layoutLength = hexGridRus.layout.length;
-// 	const eastChukotka = hexGridRus.layout.filter(el => el.x < 10);
-// 	const westChukotka = hexGridRus.layout.filter(el => el.x > 940);
-
-// 	actual = layoutLength, 
-// 	expected = eastChukotka.length + westChukotka.length;
-// 	test.equal(actual, expected, 'calculates no points between the split areas of Chukotka.');
-
-// 	test.end();
-
-// });
-
-
-// const geo = topojson.feature(worldTopo, worldTopo.objects.countries);
-// geo.features = geo.features.filter(feature => feature.id == 643); // Russia.
-// const projectWorld = d3Geo.geoMercator().fitSize([1000, 1000], geo);
-// const geoPathWorld = d3Geo.geoPath().projection(projectWorld);
-
-// const tRusStitched = hexgrid()
-// 	.pathGenerator(geoPathWorld)
-// 	.projection(projectWorld)
-// 	.geography(geo)
-// 	.hexRadius(10)
-// 	.geoStitched(true);
-
-// const hexGridRusStitched = tRusStitched([]);
-
-// tape('The hexgrid() function run with a stitched GeoJSON and .geoStitched(true)', test => {
-
-// 	let actual, expected;
-
-// 	const layoutLength = hexGridRusStitched.layout.length;
-// 	const eastChukotka = hexGridRusStitched.layout.filter(el => el.x < 9);
-// 	// Note, we're not isolating Chukotka but compare to all Russia. 
-// 	// Only have country level topo at hands this very moment.
-// 	const westRussia = hexGridRusStitched.layout.filter(el => el.x > 580);
-
-// 	actual = layoutLength, 
-// 	expected = eastChukotka.length + westRussia.length;
-// 	test.equal(1, 1, 'calculates no points between the split eastern tip of Chukotka and the western Russian border.');
-
-// 	test.end();
-
-// });
-
+  test.end();
+});
