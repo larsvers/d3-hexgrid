@@ -9,14 +9,17 @@
  * @return {Array}                          Hexagon centers covering the
  *                                          displayed object only.
  */
-export default function(centers, image, size, precision) {
+// export default function(centers, image, size, precision) {
+export default function(centers, image, size) {
   const [w, h] = size;
 
   return centers
     .filter(el => {
       return (
-        image[Math.floor(precision * el.x) + w * 
-              Math.floor(precision * el.y)]
+        // image[Math.floor(precision * el.x) + w * 
+        //       Math.floor(precision * el.y)]
+        image[Math.floor(el.x) + w * 
+              Math.floor(el.y)]
       );
     });
 }

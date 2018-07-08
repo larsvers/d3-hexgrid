@@ -1,8 +1,12 @@
 # d3-hexgrid
 
-A wrapper of _d3-hexbin_, _d3-hexgrid_ allows you to regularly tesselate polygons with hexagons. 
+A wrapper of _d3-hexbin_, _d3-hexgrid_ does three things:
 
-It further provides a layout generator for your point location data returning point counts per hexagon simplifying the visual encoding of your data.
+1. It allows you to [regularly tesselate](https://www.mathsisfun.com/geometry/tessellation.html) polygons with hexagons. _**d3-hexbin**_ produces hexagons where there is data. _**d3-hexgrid**_ produces hexagons where there is an area you define.
+
+2. It calculates the real area of edge hexagons covered by your base geography. This allows you to encode edge hexagons based on the real point-to-area ratio (point density). See below for more LINK or read this discussion LINK.
+
+2. It provides a layout generator for your point location data to simplify the visual encoding of your data. The layout rolls up the number of your point counts, adds cover per hexagon and provides a maximum of point counts for a colour scale you might want to build.
 
 ## Examples
 
@@ -146,6 +150,59 @@ We use the `hexgrid.layout` to produce as many path's as there are hexagons - as
 
 API documentation. Use bold for symbols (such as constructor and method names) and italics for instances. See the other D3 modules for examples.
 
-<a href="#hexgrid" name="hexgrid">#</a> <b>hexgrid</b>()
+<a href="#hexgrid" name="hexgrid">#</a> d3.<b>hexgrid</b>()
 
-Fun and games with hexagonal tesselation
+Constructs a hexgrid generator called _hexgrid_ in the following. To be configured in the next step, before calling it with the data you would like to visualise. 
+
+
+<a href="#hex-extent" name="hex-extent">#</a> _hexgrid._<b>extent</b>(⟨ _Array_ ⟩])
+
+_Required_. Sets the extent of the hexbin generator produced internally. ⟨ _Array_ ⟩ can come as either a 2D array specifying start and end point [[x₀, y₀], [x₁, y₁]], where x₀ is the left side of the bounding box, y₀ is the top, x₁ is the right and y₁ is the bottom. Alternatively ⟨ _Array_ ⟩ can be specified as an array of just width and height [x₁, y₁] with the top-left corner assumed to be [0, 0]. The following two statements are equivalent:
+
+```
+hexgrid.extent([[0, 0], [width, height]]);
+hexgrid.extent([width, height]);
+```
+
+
+<a href="#hex-geography" name="hex-geography">#</a> _hexgrid._<b>geography</b>(⟨ _object_ ⟩)
+
+_Required_. ⟨ _object_ ⟩ reprsents the base polygon for the hexgrid in GeoJSON format. If you were to project a hexgrid onto Bhutan, ⟨ _object_ ⟩ would be a GeoJSON object of Bhutan. 
+
+
+<a href="#hex-projection" name="hex-projection">#</a> _hexgrid._<b>projection</b>(⟨ _function_ ⟩)
+
+_Required_. ⟨ _function_ ⟩ is the projection function for the previously defined _geography_ commonly specified within the bounds of _extent_. See [here](https://github.com/d3/d3-geo) or [here](https://github.com/d3/d3-geo-projection) for a large pond of options.
+
+
+<a href="#hex-pathGenerator" name="hex-pathGenerator">#</a> _hexgrid._<b>pathGenerator</b>(⟨ _function_ ⟩)
+
+_Required_. ⟨ _function_ ⟩ is the path generator to produce the drawing instructions of the previously defined _geography_.
+
+
+<a href="#hex-hexRadius" name="hex-hexRadius">#</a> _hexgrid._<b>hexRadius</b>(⟨ _number_ ⟩)
+
+_Optional_. The desired hexagon radius. Defaults to 4.
+
+
+<a href="#hex-layoutPrecision" name="hex-layoutPrecision">#</a> _hexgrid._<b>layoutPrecision</b>(⟨ _number_ ⟩)
+
+_Optional_. The layout precision sets the scale of the internally produced canvas to identify which area of the canvas is covered by the geography. The higher the precision, the better the tesselation at the objects edges. Values can be in a range from 0.1 and 1 and will get coerced to 0.1 if lower and 1 if higher. Useful only for very large visuals, leave untouched otherwise. Default value 1.
+
+
+<a href="#hex-edgePrecision" name="hex-edgePrecision">#</a> _hexgrid._<b>edgePrecision</b>(⟨ _number_ ⟩)
+
+_Optional_. The edge precision sets the size of the internally produced canvas to identify which area of the edge hexagon are covered by the geography. The higher the precision, the better the pixel detection at the hexagon edges. Values can be larger than 1 for small visuals. Values smaller than 0.3 will be coerced to 0.3. Default value 1.
+
+
+<a href="#hex-edgeBand" name="hex-edgeBand">#</a> _hexgrid._<b>edgeBand</b>(⟨ _number_ ⟩)
+
+_Optional_. _edgeBand_ controls the width of the geography before identifying the hexagon centers within the geography. The broader the border, the wider the hexgrid. _edgeBand_ is used as multiplier to _hexRadius_, so an _edgeBand_ of 2 will produce a border of 2 &times; _hexRadius_.
+
+
+
+
+
+
+
+

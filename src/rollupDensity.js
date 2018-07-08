@@ -5,39 +5,55 @@ import { quantile } from 'd3-array';
  * without a cover. Requried as some user data points
  * can lie just outside the image.
  * @param  {Array}  points  Layout objects.
+ * @param  {number} r       The hexagon's radius.
  * @return {Array}          Cover augmented layout objects.
  */
-export default function(points) {
-  // Establish a minimum cover proxy.
-  // Only consider edge cover cases < 1.
-  const quartileCover = quantile(
-    points.filter(p => p.cover < 1),
-    0.25,
-    d => d.cover
-  );
+export default function(points, r) {
+  // Establish a minimum cover proxy: get a sorted array of cover values 
+  // for the quantile function. Only consider edges with cover < 1.
+  const ascendingCover = points
+    .filter(p => p.cover > 0 && p.cover < 1)
+    .map(d => d.cover)
+    .sort((a, b) => a - b);
+  // Get the 10th percentile as the proxy.
+  const quartileCover = quantile(ascendingCover, 0.1);
 
-  // Initialise maxima.
-  let maximumPoints = 0;
-  let maximumPointsWt = 0;
+  // Get the hexagon's area in square pixel.
+  const hexArea = (3 / 2) * Math.sqrt(3) * Math.pow(r, 2);
 
-  // All layout points w/o cover will
-  // get assigned the cover proxy.
-  // All datapoints will be weighted by
-  // the inverse cover - the weight to
-  // calculate the point density.
-  for (var i = 0; i < points.length; i++) {
+  // Initialise extents.
+  let maxPoints = 0;
+  let maxPointsWt = 0;
+  let maxDensity = 0;
+  // init the min value arbitrarily high.
+  let minDensity = 100;
+
+  for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    if (point.cover) {
-      point.datapointsWt = point.datapoints * (1 / point.cover);
-    } else {
+
+    // All layout points w/o cover will get assigned the cover proxy.
+    // Note, only non-gridpoont datapoints will have no cover.
+    if (!point.cover) {
       point.cover = quartileCover;
-      point.datapointsWt = point.datapoints * (1 / point.cover);
     }
 
-    // Update maxima.
-    maximumPoints = Math.max(maximumPoints, point.datapoints);
-    maximumPointsWt = Math.max(maximumPointsWt, point.datapointsWt);
+    // Calculate the cover weighted measures.
+    point.datapointsWt = point.datapoints * (1 / point.cover);
+    point.pointDensity = point.datapoints / (hexArea * point.cover);
+
+    // Update extents.
+    maxPoints = Math.max(maxPoints, point.datapoints);
+    maxPointsWt = Math.max(maxPointsWt, point.datapointsWt);
+    maxDensity = Math.max(maxDensity, point.pointDensity);
+    if (point.pointDensity > 0)
+      minDensity = Math.min(minDensity, point.pointDensity);
   }
 
-  return { layout: points, maximumPoints, maximumPointsWt };
+  return {
+    layout: points,
+    maxPoints,
+    maxPointsWt,
+    maxDensity,
+    minDensity
+  };
 }

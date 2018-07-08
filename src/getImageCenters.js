@@ -11,7 +11,8 @@
  * @return {Array}                          Hexagon centers covering 
  *                                          the displayed object.
  */
-export default function(centers, image, size, precision) {
+// export default function(centers, image, size, precision) {
+export default function(centers, image, size) {
   const [w, h] = size;
 
   return centers
@@ -20,8 +21,10 @@ export default function(centers, image, size, precision) {
         // Vouch for centers to be within bounds.
         center[0] >= 0 && center[0] <= w &&
         center[1] >= 0 && center[1] <= h &&
-        image[Math.floor(precision * center[0]) + w * 
-              Math.floor(precision * center[1])]
+        // image[Math.floor(precision * center[0]) +  
+        //       Math.floor(precision * center[1]) * w]
+        image[Math.floor(center[0]) +  
+              Math.floor(center[1]) * w]
       );
     })
     .map((center,i) => { 
