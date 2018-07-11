@@ -114,11 +114,11 @@ export default function() {
 
     hexbin.grid = {};
     hexbin.grid.layout = hexData.layout;
-    hexbin.grid.maximumPoints = hexData.maxPoints;
-    hexbin.grid.maximumPointsWeighted = hexData.maxPointsWt;
-    hexbin.grid.maximumPointDensity = hexData.maxDensity;
-    hexbin.grid.minimumPointDensity = hexData.minDensity;
-    hexbin.grid.imageEdges = imageEdges;
+    hexbin.grid.maxPoints = hexData.maxPoints;
+    hexbin.grid.maxPointsWeighted = hexData.maxPointsWt;
+    hexbin.grid.maxPointDensity = hexData.maxDensity;
+    hexbin.grid.minPointDensity = hexData.minDensity;
+    // hexbin.grid.imageEdges = imageEdges;
     hexbin.grid.imageCenters = imageCenters;
 
     return hexbin;
