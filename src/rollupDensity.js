@@ -1,15 +1,15 @@
 import { quantile } from 'd3-array';
 
 /**
- * Assigns a minimum cover proxy to each layout point
- * without a cover. Requried as some user data points
- * can lie just outside the image.
+ * Calculates the cover weighted measures. Also assigns a
+ * minimum cover proxy to each layout point without a cover.
+ * Requried as some user data points can lie just outside the image.
  * @param  {Array}  points  Layout objects.
  * @param  {number} r       The hexagon's radius.
  * @return {Array}          Cover augmented layout objects.
  */
 export default function(points, r) {
-  // Establish a minimum cover proxy: get a sorted array of cover values 
+  // Establish a minimum cover proxy: get a sorted array of cover values
   // for the quantile function. Only consider edges with cover < 1.
   const ascendingCover = points
     .filter(p => p.cover > 0 && p.cover < 1)
@@ -25,8 +25,11 @@ export default function(points, r) {
   let maxPoints = 0;
   let maxPointsWt = 0;
   let maxDensity = 0;
-  // init the min value arbitrarily high.
-  let minDensity = 100;
+
+  // Initialise the min values with the largest possible min value.
+  let minPoints = points.length;
+  let minPointsWt = points.length;
+  let minDensity = points.length / hexArea;
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
@@ -45,15 +48,21 @@ export default function(points, r) {
     maxPoints = Math.max(maxPoints, point.datapoints);
     maxPointsWt = Math.max(maxPointsWt, point.datapointsWt);
     maxDensity = Math.max(maxDensity, point.pointDensity);
+
+    if (point.datapoints > 0)
+      minPoints = minPointsWt = Math.min(minPoints, point.datapoints);
     if (point.pointDensity > 0)
       minDensity = Math.min(minDensity, point.pointDensity);
   }
 
+  const extentPoints = [minPoints, maxPoints];
+  const extentPointsWeighted = [minPointsWt, maxPointsWt];
+  const extentPointDensity = [minDensity, maxDensity];
+
   return {
     layout: points,
-    maxPoints,
-    maxPointsWt,
-    maxDensity,
-    minDensity
+    extentPoints,
+    extentPointsWeighted,
+    extentPointDensity
   };
 }

@@ -4,9 +4,11 @@ A wrapper of _d3-hexbin_, _**d3-hexgrid**_ does three things:
 
 1. It allows you to [regularly tesselate](https://www.mathsisfun.com/geometry/tessellation.html) polygons with hexagons. _**d3-hexbin**_ produces hexagons where there is data. _**d3-hexgrid**_ produces hexagons where there is a base geography you define.
 
-2. Hexagons at the edge of your geography are often truncated by the geography's border. _d3.hexgrid_ calculates the inside-area of these edge hexagons allowing you to encode edge data based on the correct point density. See below for more LINK or read this discussion LINK.
+2. Hexagons at the edge of your geography are often truncated by the geography's border. _d3.hexgrid_ calculates the inside-area of these edge hexagons (called _cover_) allowing you to encode edge data based on the correct point density. [See below for more](#cover-correction).
 
-2. It provides a layout generator for your point location data to simplify the visual encoding of your data. The layout rolls up the number of your point counts, adds cover per hexagon and provides a maximum of point counts for a colour scale you might want to build.
+3. Lastly, _d3.hexgrid_ provides an extended layout generator for your point location data to simplify the visual encoding of your data. The layout rolls up the number of point locations per hexagon, adds cover and point density and provides a maximum of point counts and point density for a colour scale you might want to build. [See below for more](#breaking-this-down:).
+
+Please [see this notebook](LINK) LINK!! for a description of the algorithm.
 
 ## Examples
 
@@ -34,7 +36,27 @@ Postboxes in the UK
 
 <sub>data source: [dracos.co.uk](http://dracos.co.uk/) from [here](http://dracos.co.uk/made/locating-postboxes) via [Free GIS Data](https://freegisdata.rtwilson.com/)</sub>
 
-TODO: link to blocks
+### Cover correction
+
+The tesselation aspect might become clear in these examples. The edge cover calculation might not. In short, _d3.hexgrid_ identifies all **edge hexagons** that partly lie beyond the borders of the geography &mdash; or more general, the base image presented. In a next step it calculates the edge hexagon's **cover**: the area the edge hexagon lies within the bounds of the base image in percent. Lastly, the **point density** will be calculated by: 
+
+_Point density = Points in hexagon / Hexagon area in px<sup>2</sup> * Cover_
+
+A comparison:
+
+![edge comparison](img/edge-compare.jpg)
+
+Both maps encode the number of Farmer's Markets per hexagon. Yellow represents a low, purple a high number. The edge hexagons of the upper map are not cover corrected, the edge hexagons of the lower map are. 
+
+The edge hexagon at the south-eastern tip of Florida we're comparing has a cover of 55%, meaning 55% of the hexagon's area are inland, 45% are in water. There are a total of 22 Farmer's Markets in this hexagon. Not cover corrected, the hexagon would have a point density of 0.09 and would receive a dark blue with the colour scale of choice. If cover corrected, its real point density increases to 0.17 and it is coloured in a dark purple - indicating higher point density as it should.
+
+Differences might be subtle but are noticeable.
+
+Please see [this notebook](LINK) LINK!! for a description of the overall algorithm in general and the cover calculation in particular. 
+
+
+### Usage beyond maps
+
 
 It might be obvious that _d3-hexgrid_ is build with geographic map tesselation in mind. However, nothing should stop you to tesselate non-geographic polygons as long as you represent the data in GeoJSON or TopoJSON (see more [below](TODO link)).
 
@@ -95,7 +117,7 @@ svg.append('g')
 
 ```
 
-### Breaking this down:
+### Breaking the example down:
 
 First, we create an `SVG` element. Let's assume our data represents mainland US and comes in as a TopoJSON. We first convert it to GeoJSON, use an Albers projection to fit our SVG and finally get the appropriate path generator.
 
@@ -130,34 +152,34 @@ This will return a hexbin generator as [`d3.hexbin()`](https://github.com/d3/d3-
 
 * `imageCenters` is an array of all [x, y] hexagon centers of the hexgrid.
 
-* `layout` is an array of objects, each representing a hexagon in the grid. Every object will hold all point locations per hexagon in pixel coordinates as well as aggregate values for this hexagon. Here's an example hexagon layout object with three locations or _**datapoints**_:
+* `layout` is an array of arrays, each sub-array representing a hexagon in the grid. Each sub-array holds all point locations per hexagon in an object exposing _x_ and _y_ pixel coordinates as well as aggregate values. Here's an example hexagon layout object with three point locations or _datapoints_:
 
 	![layout object](img/layout-object.jpg)
 	
-	Each point location is stored as an array item as well as the following aggregate values:
+	The aggregate values per hexagon are:
 
-	- `cover` is the percentage of the hexagon area within the geography.
+	- `cover` is the percentage of this hexagon's area within the geography.
 	- `datapoints` is the number of points binned in the hexagon.
 	- `datapointsWt` is the number of points weighted by the inverse cover.
-	- `pointDensity` is this hexagon's point density.
-	- `gridpoint` marks this hexagon as part of the initial hexgrid. This allows you to distinguish hexagons added by the data. Imprecise latitude and longitude data values can lead to the production of hexagons just outside the hexgrid. _d3.hexgrid_ will still capture and produce them. But you can spot and treat them by filtering for `gridpoint === 0`.
+	- `pointDensity` is the hexagon's point density.
+	- `gridpoint` marks the hexagon as part of the initial hexgrid. This allows you to distinguish hexagons added by the data. Imprecise latitude and longitude data values can lead to the production of hexagons just outside the hexgrid. _d3.hexgrid_ will still capture and produce them. But you can spot and treat them by filtering for `gridpoint === 0`.
 	- `x` and `y`are the hexagon center positions in pixel coordinates.
 
-* `maxPoints` is the maximum number of location points binned.
-* `maxPointsWeighted` is the maximum number of location points binned and weighted by partial geography cover for edge hexagons (hexagons that cross the boundaries of the defined geography).
-* `maxPointDensity` is the maximum point density, accounting for smaller edge hexagon cover. 
-* `minPointDensity` is the minimum point density, accounting for smaller edge hexagon cover. 
+* `extentPoints` is the extent of point location counts over all hexagons in the form _[min number of points, max number of points]_.
+* `extentPointsWeighted` is the extent of point location counts weighted by their cover over all hexagons in the form _[min number of weighted points, max number of weighted points]_.
+* `extentPointDensity` is the extent of cover adjusted point density over all hexagons in the form _[min point density, max point density]_.
 
-	These maximums and the minimum can be used to set the extents of a colour scale when encoding number of points or point density. The minimum number of points will always be 1 (or 0 which you, however, might encode suitably different, e.g. white or black) and is therefore not exposed. In contrast, when working with point density you will need the lowest non-zero point density as it will change with different data. 
+	These extents can be used to set the domain of a colour scale when encoding number of points or point density.
+
 	
 Working with points, for example, we might want to create the following colour scale:
 
 
 ```
 const colourScale = d3.scaleSequential(d3.interpolateViridis)
-	.domain([hex.maxPoints, 1]); 
+	.domain(hex.grid.extentPoints.reverse()); 
 ```
-Here, we decide to encode the number of points per hexagon as colours along the spectrum of the [viridis colour map](https://github.com/d3/d3-scale-chromatic#interpolateViridis) and create an appropriate colour scale. 
+Here, we decide to encode the number of points per hexagon as colours along the spectrum of the [viridis colour map](https://github.com/d3/d3-scale-chromatic#interpolateViridis) and create an appropriate colour scale. We reverse the extent as we want to map the maximum value to the darkest colour, which the viridis colour space starts with.
 
 Finally, we build the visual:
 
@@ -187,7 +209,7 @@ Constructs a hexgrid generator called _hexgrid_ in the following. To be configur
 
 <a href="#hex" name="hex">#</a> _hexgrid(⟨ data ⟩ [, ⟨ names ⟩])_
 
-Generates a hexbin generator augmented with a `grid` property, exposing the hexagon layout data as well as maximas for point and point density measures. See [Example usage](#example-usage) for details. Optionally _⟨ names ⟩_ can be an array of strings, listing properties you would like to carry through to the grid layout from the original data.
+Generates a hexbin generator augmented with a `grid` property, exposing the hexagon layout data as well as maximas for point and point density measures. See [Example usage](#example-usage) for details. Optionally _⟨ names ⟩_ can be an array of strings, listing properties you would like to pass through from your original data to the grid layout.
 
 Assuming you want to visualise restaurants on a map and have a dataset containing the variables `website` and `opening_times` you can say:
 
@@ -195,7 +217,7 @@ Assuming you want to visualise restaurants on a map and have a dataset containin
 hexgrid(restaurantData, ['website', 'opening_times'])
 ```
 
-As a result, objects in the <code>_hexgrid_.grid.layout</code> array will contain the two variables in addition to thhe default _x_ and _y_ coordinates:
+As a result, objects in the <code>_hexgrid_.grid.layout</code> array will contain the two variables in addition to the default _x_ and _y_ coordinates:
 
 ![layout-object-vars](img/layout-object-vars.jpg)
 
@@ -211,7 +233,7 @@ hexgrid.extent([width, height]);
 
 <a href="#hex-geography" name="hex-geography">#</a> _hexgrid._<b>geography</b>(⟨ _object_ ⟩)
 
-_Required_. ⟨ _object_ ⟩ reprsents the base polygon for the hexgrid in GeoJSON format. If you for example were to project a hexgrid onto Bhutan, ⟨ _object_ ⟩ would be a GeoJSON object of Bhutan. 
+_Required_. ⟨ _object_ ⟩ represents the base polygon for the hexgrid in GeoJSON format. If you for example were to project a hexgrid onto Bhutan, ⟨ _object_ ⟩ would be a GeoJSON object of Bhutan. 
 
 
 <a href="#hex-projection" name="hex-projection">#</a> _hexgrid._<b>projection</b>(⟨ _function_ ⟩)
