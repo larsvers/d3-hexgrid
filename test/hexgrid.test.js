@@ -39,7 +39,7 @@ function getUniqueKeys(layout) {
   return Array.from(new Set(allKeys));
 }
 
-// Fake dom for the canvas methods using `document`.
+// Fake dom for canvas methods using `document`.
 const dom = new JSDOM('<!DOCTYPE html><title>fake dom</title>');
 global.document = dom.window.document;
 
@@ -64,21 +64,25 @@ const hexDataWithKeys = t(luxCities, ['Name', 'Population']);
 tape('The hexgrid function returns an object', test => {
   let actual, expected;
 
-  actual = hex.layout.constructor.name, 
+  actual = hex.grid.constructor.name, 
+  expected = 'Object';
+  test.equal(actual, expected, 'called "grid".');
+
+  actual = hex.grid.layout.constructor.name, 
   expected = 'Array';
   test.equal(actual, expected, 'with a property called "layout" of type "Array".');
 
-  actual = hex.imageCenters.constructor.name, 
+  actual = hex.grid.imageCenters.constructor.name, 
   expected = 'Array';
   test.equal(actual, expected, 'with a property called "imageCenters" of type "Array".');
 
-  actual = typeof hex.maximum, 
+  actual = typeof hex.grid.maxPoints, 
   expected = 'number';
-  test.equal(actual, expected, 'with a property called "maximum" of type "number".');
+  test.equal(actual, expected, 'with a property called "maxPoints" of type "number".');
 
-  actual = typeof hex.maximumWt, 
+  actual = typeof hex.grid.maxPointsWeighted, 
   expected = 'number';
-  test.equal(actual, expected, 'with a property called "maximumWt" of type "number".');
+  test.equal(actual, expected, 'with a property called "maxPointsWeighted" of type "number".');
 
   test.end();
 });
@@ -87,7 +91,7 @@ tape('The hexgrid\'s layout array holds objects', test => {
   let actual, expected;
 
   // Check all objects share the same keys.
-  const layout = hex.layout;
+  const layout = hex.grid.layout;
   const keyArray = layout.map(d => Object.keys(d));
 
   actual = getKeyEquality(keyArray);
@@ -98,8 +102,8 @@ tape('The hexgrid\'s layout array holds objects', test => {
   const uniqueKeys = getUniqueKeys(layout);
 
   actual = uniqueKeys.length;
-  expected = 6;
-  test.equal(actual, expected, 'with six keys if no user data is supplied.');
+  expected = 7;
+  test.equal(actual, expected, 'with seven keys if no user data is passed through.');
 
   expected = true;
   actual = uniqueKeys.includes('x');
@@ -114,6 +118,8 @@ tape('The hexgrid\'s layout array holds objects', test => {
   test.equal(actual, expected, 'with a "datapoints" property.');
   actual = uniqueKeys.includes('datapointsWt');
   test.equal(actual, expected, 'with a "datapointsWt" property.');
+  actual = uniqueKeys.includes('pointDensity');
+  test.equal(actual, expected, 'with a "pointDensity" property.');
 
   test.end();
 });
@@ -121,13 +127,13 @@ tape('The hexgrid\'s layout array holds objects', test => {
 tape('The hexgrid function run with a geography returns an object', test => {
   let actual, expected;
 
-  actual = hex.layout.length > 90;
+  actual = hex.grid.layout.length > 90;
   expected = true;
-  test.equal(actual, expected, 'with a "layout" array of length greater than a specifically expected number.');
+  test.equal(actual, expected, 'with a "layout" array of length greater than the expected number.');
 
-  actual = hex.imageCenters.length > 90;
+  actual = hex.grid.imageCenters.length > 90;
   expected = true;
-  test.equal(actual, expected, 'with an "imageCenters" array of length greater than a specifically expected number.');
+  test.equal(actual, expected, 'with an "imageCenters" array of length greater than the expected number.');
 
   test.end();
 });
@@ -135,16 +141,16 @@ tape('The hexgrid function run with a geography returns an object', test => {
 tape('The hexgrid function run with a geography and user data returns an object', test => {
   let actual, expected;
 
-  actual = hexData.maximum;
+  actual = hexData.grid.maxPoints;
   expected = 1;
   test.equal(actual, expected, 'with the expected maximum of datapoints per hexagon.')
 
-  actual = hexData.maximumWt > hexData.maximum;
+  actual = hexData.grid.maxPointsWeighted > hexData.grid.maxPoints;
   expected = true;
   test.equal(actual, expected, 'with a larger weighted maximum than unweighted maximum of datapoints per hexagon.')
 
   // Check length of hexagons with datapoints.
-  const layout = hexData.layout;
+  const layout = hexData.grid.layout;
   const points = layout.filter(d => d.datapoints).map(d => d.length > 0);
   let length = Array.from(new Set(points))[0];
 
@@ -185,7 +191,7 @@ tape('If supplied with a geography, user data and user variables, only the layou
   let actual, expected;
 
   // Check user variables have been passed through.
-  const filter = hexDataWithKeys.layout.filter(d => d.datapoints);
+  const filter = hexDataWithKeys.grid.layout.filter(d => d.datapoints);
   const keyArray = filter.map(d => Object.keys(d));
 
 
@@ -198,10 +204,10 @@ tape('If supplied with a geography, user data and user variables, only the layou
 
 
   actual = uniqueKeys.length;
-  expected = 7;
-  test.equal(actual, expected, 'have seven keys (all keys + Array index 0) if e maximum number of datapoints per hex is 1.');
+  expected = 8;
+  test.equal(actual, expected, 'have eight keys (all keys + Array index 0) if the maximum number of datapoints per hex is 1.');
 
-  // // layout > filter datapoints > map Object.keys(d[0]) > getKeyEquality() < test > getUniqueKeys() < test
+  // Check equality of key names.
   const datapointKeyArray = filter.map(d => Object.keys(d[0]));
 
   actual = getKeyEquality(datapointKeyArray);
