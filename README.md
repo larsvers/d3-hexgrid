@@ -4,37 +4,39 @@ A wrapper of _d3-hexbin_, _**d3-hexgrid**_ does three things:
 
 1. It allows you to [regularly tesselate](https://www.mathsisfun.com/geometry/tessellation.html) polygons with hexagons. _**d3-hexbin**_ produces hexagons where there is data. _**d3-hexgrid**_ produces hexagons where there is a base geography you define.
 
-2. Hexagons at the edge of your geography are often truncated by the geography's border. _d3.hexgrid_ calculates the inside-area of these edge hexagons (called _cover_) allowing you to encode edge data based on the correct point density. [See below for more](#cover-correction).
+2. Hexagons at the edge of your geography are often truncated by the geography's border. _d3.hexgrid_ calculates the inside-area of these edge hexagons (_cover_) allowing you to encode edge data based on the correct point density. [See below for more](#cover-correction).
 
-3. Lastly, _d3.hexgrid_ provides an extended layout generator for your point location data to simplify the visual encoding of your data. The layout rolls up the number of point locations per hexagon, adds cover and point density and provides a maximum of point counts and point density for a colour scale you might want to build. [See below for more](#breaking-this-down:).
+3. Lastly, _d3.hexgrid_ provides an extended layout generator for your point location data to simplify the visual encoding of your data. The layout rolls up the number of point locations per hexagon, adds cover and point density and provides a point count and point density extents for colour scale domains. [See below for more](#breaking-this-down:).
 
 Please [see this notebook](LINK) LINK!! for a description of the algorithm.
 
 ## Examples
 
-Militarised interstate disputes in Europe 1816-2001
+#### Militarised interstate disputes in Europe 1816-2001
 
 ![disputes](img/disputes.jpg)
 
 <sub>data source: [Midloc via data.world](https://data.world/cow/militarized-dispute-locations/workspace/file?filename=midloc-v1-1%2FMIDLOC_1.1.csv)</sub>
 
-Cities across the world
+
+#### Cities across the world
 
 ![cities](img/cities.jpg)
 
 <sub>data source: [maxmind](http://www.maxmind.com/)</sub>
 
-Farmers Markets in the US
+#### Farmers Markets in the US
 
 ![farmer markets](img/markets.jpg)
 
 <sub>data source: [USDA](https://www.ams.usda.gov/local-food-directories/farmersmarkets)</sub>
 
-Postboxes in the UK 
+#### Postboxes in the UK 
 
 ![postboxes](img/postboxes.jpg)
 
 <sub>data source: [dracos.co.uk](http://dracos.co.uk/) from [here](http://dracos.co.uk/made/locating-postboxes) via [Free GIS Data](https://freegisdata.rtwilson.com/)</sub>
+
 
 ### Cover correction
 
@@ -48,17 +50,11 @@ A comparison:
 
 Both maps encode the number of Farmer's Markets per hexagon. Yellow represents a low, purple a high number. The edge hexagons of the upper map are not cover corrected, the edge hexagons of the lower map are. 
 
-The edge hexagon at the south-eastern tip of Florida we're comparing has a cover of 55%, meaning 55% of the hexagon's area are inland, 45% are in water. There are a total of 22 Farmer's Markets in this hexagon. Not cover corrected, the hexagon would have a point density of 0.09 and would receive a dark blue with the colour scale of choice. If cover corrected, its real point density increases to 0.17 and it is coloured in a dark purple - indicating higher point density as it should.
+The edge hexagon at the south-eastern tip of Florida we're comparing has a cover of 55%, meaning 55% of the hexagon's area are inland, 45% are in the Atlantic. There are a total of 22 Farmer's Markets in this hexagon. Not cover corrected, the hexagon would have a point density of 0.09 and would receive a dark blue with the colour scale of choice. If cover corrected, its real point density increases to 0.17 and it is coloured in a dark purple - indicating higher point density as it should.
 
 Differences might be subtle but are noticeable.
 
 Please see [this notebook](LINK) LINK!! for a description of the overall algorithm in general and the cover calculation in particular. 
-
-
-### Usage beyond maps
-
-
-It might be obvious that _d3-hexgrid_ is build with geographic map tesselation in mind. However, nothing should stop you to tesselate non-geographic polygons as long as you represent the data in GeoJSON or TopoJSON (see more [below](TODO link)).
 
 
 ## Install
@@ -83,7 +79,10 @@ Here's a bare bone example usage of _d3-hexgrid_.
 ```
 
 // Container.
-const svg = d3.select('#container').append('svg')
+const svg = d3.select('#container')
+	.append('svg')
+	.attr(width, 'width')
+	.attr('height, 'height');
 
 // Geo data, projection and path.
 const geo = topojson.feature(topo, topo.objects.us_mainland);
@@ -92,6 +91,7 @@ const geoPath = d3.geoPath().projection(projection);
 
 // Produce and configure the hexgrid instance.
 const hexMaker = d3.hexgrid()
+	.extent([width, height])
 	.geography(geo)
     .projection(projection)
 	.pathGenerator(geoPath);
@@ -101,7 +101,7 @@ const hex = hexMaker(myPointLocationData);
 
 // Create a colour scale.
 const colourScale = d3.scaleSequential(d3.interpolateViridis)
-	.domain([hex.grid.maximum, 1]); 
+	.domain(hex.grid.maxPoints.reverse()); 
 
 // Draw the hexes.
 svg.append('g')
@@ -132,10 +132,11 @@ const projection = d3.geoAlbers().fitSize([width, height], geo);
 const geoPath = d3.geoPath().projection(projection);
 
 ```
-Next, we use `d3.hexgrid()` to produce a _hexgrid_ instance we call `hexMaker`. We immediately configure it by passing in the GeoJOSN, the projection and the path-generator.
+Next, we use `d3.hexgrid()` to produce a _hexgrid_ instance we call `hexMaker`. We immediately configure it by passing in the extent, the GeoJOSN, the projection and the path-generator.
 
 ```
 const hexMaker = d3.hexgrid()
+	.extent([width, height])
 	.geography(geo)
     .projection(projection)
 	.pathGenerator(geoPath);
@@ -152,13 +153,13 @@ This will return a hexbin generator as [`d3.hexbin()`](https://github.com/d3/d3-
 
 * `imageCenters` is an array of all [x, y] hexagon centers of the hexgrid.
 
-* `layout` is an array of arrays, each sub-array representing a hexagon in the grid. Each sub-array holds all point locations per hexagon in an object exposing _x_ and _y_ pixel coordinates as well as aggregate values. Here's an example hexagon layout object with three point locations or _datapoints_:
+* `layout` is an array of arrays, each sub-array representing a hexagon in the grid. Each sub-array holds all point locations per hexagon in an object exposing at least _x_ and _y_ pixel coordinates as well as aggregate values. Here's an example hexagon layout object with three point locations or _datapoints_:
 
 	![layout object](img/layout-object.jpg)
 	
 	The aggregate values per hexagon are:
 
-	- `cover` is the percentage of this hexagon's area within the geography.
+	- `cover` is the percentage of this hexagon's area within the geography expressed as a number between 0 and 1.
 	- `datapoints` is the number of points binned in the hexagon.
 	- `datapointsWt` is the number of points weighted by the inverse cover.
 	- `pointDensity` is the hexagon's point density.
@@ -204,14 +205,14 @@ We use the `hex.grid.layout` to produce as many path's as there are hexagons - a
 
 <a href="#hexgrid" name="hexgrid">#</a> d3.<b>hexgrid</b>()
 
-Constructs a hexgrid generator called _hexgrid_ in the following. To be configured in the next step, before calling it with the data you would like to visualise. 
+Constructs a hexgrid generator called _hexgrid_ in the following. To be configured before calling it with the data you plan to visualise. 
 
 
 <a href="#hex" name="hex">#</a> _hexgrid(⟨ data ⟩ [, ⟨ names ⟩])_
 
-Generates a hexbin generator augmented with a `grid` property, exposing the hexagon layout data as well as maximas for point and point density measures. See [Example usage](#example-usage) for details. Optionally _⟨ names ⟩_ can be an array of strings, listing properties you would like to pass through from your original data to the grid layout.
+Generates a hexbin generator augmented with a `grid` property, exposing the hexagon layout data as well as extents for point and point density measures. See [Example usage](#example-usage) for details. Optionally _⟨ names ⟩_ can be an array of strings, listing properties you would like to pass through from your original data to the grid layout.
 
-Assuming you want to visualise restaurants on a map and have a dataset containing the variables `website` and `opening_times` you can say:
+Assuming you want to visualise restaurants on a map and have a restaurant dataset containing the variables `website` and `opening_times` you can say:
 
 ```
 hexgrid(restaurantData, ['website', 'opening_times'])
@@ -233,7 +234,7 @@ hexgrid.extent([width, height]);
 
 <a href="#hex-geography" name="hex-geography">#</a> _hexgrid._<b>geography</b>(⟨ _object_ ⟩)
 
-_Required_. ⟨ _object_ ⟩ represents the base polygon for the hexgrid in GeoJSON format. If you for example were to project a hexgrid onto Bhutan, ⟨ _object_ ⟩ would be a GeoJSON object of Bhutan. 
+_Required_. ⟨ _object_ ⟩ represents the base polygon for the hexgrid in GeoJSON format. If you were to project a hexgrid onto Bhutan, ⟨ _object_ ⟩ would be a GeoJSON object of Bhutan. 
 
 
 <a href="#hex-projection" name="hex-projection">#</a> _hexgrid._<b>projection</b>(⟨ _function_ ⟩)
@@ -274,6 +275,24 @@ _Optional_. _d3.hexgrid_ will try to guess the key names for longitude and latit
 * _latitude_, _lat_ and _phi_.
 
 If you choose other names for them like for example _upDown_ and _leftRight_, you 
-have to specify them as `.geokeys(['upDown', 'leftRight'])` with the first element representing longitude and the second latitude. 
+have to specify them as <code><i>hexgrid</i>.geokeys(['upDown', 'leftRight'])</code> with the first element representing longitude and the second latitude. 
 
 Please don't call your geo keys `x` or `y` or otherwise include `x` or `y` keys in your passed in user variables as they are reserved keys for the pixel coordinates of the layout.
+
+## Using hexagons in mapping
+
+Hexagons are good for binning point location data as they are the shape closest to circles that can be regularly tesselated. AS a result point distributions within the hexagon are [relatively spike-less](LINK) LINK! and [neighbouring hexagons are equidistant](https://uber.github.io/h3/#/documentation/overview/use-cases). 
+
+However, the world is [something like a sphere](https://en.wikipedia.org/wiki/Spheroid) and there are numerous ways to project a sphere onto a 2D plane. The projection used has an important effect on the analysis. Any tesselation normalises space to equally sized units - hexagons in this case - which invites considering these units the same size. However, some projections like the ubiquitous Mercator projection will distort the area towards the poles significantly:
+
+![mercator](img/mercator.jpg)
+
+<sub>All red circles are of the same area. Source: [D3 in depth](http://d3indepth.com/geographic/) by [Peter Cook](http://animateddata.co.uk/)
+
+Tesselating a mercator world map with hexagons will produce many more hexagons per square mile in Norway compared to Brazil. 
+
+Instead, consider using an [equal area projections](https://github.com/d3/d3-geo-projection#geoConicEqualArea) which reduces the problem dramatically.
+
+Another caveat with location binning is the [Modifiable Areal Unit Problem](https://blog.cartographica.com/blog/2011/5/19/the-modifiable-areal-unit-problem-in-gis.html) or MAUP, stating that a change in size of the analysis units can lead to different results. Something to be aware of, a reason to analyse the same data with different sizes, and - if appropriate - explain found differencies to the user, maybe by showing results with different sizes or even allowing the aware user to change the hexagon sizes.
+
+
