@@ -4,7 +4,7 @@
  * @param  {Array} data     User defined data.
  * @return {Array}          Array of geo keys.
  */
-function checkLonLatNames(lonLat, data) {
+function checkGeoKeyNames(lonLat, data) {
   if (lonLat && lonLat.length === 2) return lonLat;
 
   const lonKey = Object.keys(data[0]).filter(key => {
@@ -38,14 +38,13 @@ export default function(data, projection, lonLat, variables) {
   // Return an empty array if the user hasn't passed down data.
   if (!data.length) return [];
 
-  const geoKeys = checkLonLatNames(lonLat, data);
+  const geoKeys = checkGeoKeyNames(lonLat, data);
 
   return data.map(el => {
     const coords = projection([+el[geoKeys[0]], +el[geoKeys[1]]]);
 
     const obj = {};
-    obj.x = coords[0];
-    obj.y = coords[1];
+    [obj.x, obj.y] = coords;
 
     if (variables && variables.length) {
       variables.forEach(varName => {

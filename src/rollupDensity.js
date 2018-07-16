@@ -19,7 +19,7 @@ export default function(points, r) {
   const quartileCover = quantile(ascendingCover, 0.1);
 
   // Get the hexagon's area in square pixel.
-  const hexArea = (3 / 2) * Math.sqrt(3) * Math.pow(r, 2);
+  const hexArea = (3 / 2) * Math.sqrt(3) * (r ** 2);
 
   // Initialise extents.
   let maxPoints = 0;
@@ -45,14 +45,15 @@ export default function(points, r) {
     point.pointDensity = point.datapoints / (hexArea * point.cover);
 
     // Update extents.
-    maxPoints = Math.max(maxPoints, point.datapoints);
-    maxPointsWt = Math.max(maxPointsWt, point.datapointsWt);
-    maxDensity = Math.max(maxDensity, point.pointDensity);
+    maxPoints   = Math.max(maxPoints, point.datapoints);
+    maxPointsWt = maxPoints;
+    maxDensity  = Math.max(maxDensity, point.pointDensity);
 
     if (point.datapoints > 0)
-      minPoints = minPointsWt = Math.min(minPoints, point.datapoints);
+      minPoints   = Math.min(minPoints, point.datapoints);
+      minPointsWt = minPoints;
     if (point.pointDensity > 0)
-      minDensity = Math.min(minDensity, point.pointDensity);
+      minDensity  = Math.min(minDensity, point.pointDensity);
   }
 
   const extentPoints = [minPoints, maxPoints];

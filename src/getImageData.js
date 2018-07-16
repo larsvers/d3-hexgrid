@@ -17,7 +17,7 @@ export default function(size, pathGen, geo, r, action, band) {
   // For debugging; append the canvas to the body and just draw on it.
   const canvas = document.createElement('canvas');
   // const canvas = d3.select('body').append('canvas').node();
-  (canvas.width = size[0]), (canvas.height = size[1]);
+  [canvas.width, canvas.height] = size;
 
   const context = canvas.getContext('2d');
 
@@ -27,7 +27,7 @@ export default function(size, pathGen, geo, r, action, band) {
   context.beginPath();
   canvasPath(geo);
   if (action === 'fill') {
-    // debugger  
+    // debugger
     if (band) {
       context.lineWidth = gridExtentStroke;
       context.stroke();

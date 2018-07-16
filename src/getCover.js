@@ -1,5 +1,5 @@
 // Debug
-import { pointyHexCorner, hexDraw } from './utils';
+// import { pointyHexCorner, hexDraw } from './utils';
 
 /**
  * Calculates the cover for a single hexagon by
@@ -65,12 +65,12 @@ export default function(edge, tools, precision, r) {
   // 2) Calculate the image cover per edge hexagon.
 
   // Init area count variables.
-  let hexArea = 0,
-    imgArea = 0;
+  let hexArea = 0;
+  let imgArea = 0;
 
   // Find filled pixel with some alpha (>=100)
   // and identify image part.
-  for (var pixelIndex = 3; pixelIndex < imageData.length; pixelIndex += 4) {
+  for (let pixelIndex = 3; pixelIndex < imageData.length; pixelIndex += 4) {
     const alpha = imageData[pixelIndex];
     if (alpha < 100) {
       continue;
@@ -85,7 +85,7 @@ export default function(edge, tools, precision, r) {
   const imgRatio = imgArea / (hexArea + imgArea);
   const updatedEdge = Object.assign({}, edge);
   updatedEdge.cover = imgRatio;
-  
+
   // Clear the canvas and reset the composite type in preperation
   // for the next overlap (http://bit.do/ekDx4).
   contextMix.clearRect(0, 0, w, h);

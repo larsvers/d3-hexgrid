@@ -76,13 +76,17 @@ tape('The hexgrid function returns an object', test => {
   expected = 'Array';
   test.equal(actual, expected, 'with a property called "imageCenters" of type "Array".');
 
-  actual = typeof hex.grid.maxPoints, 
-  expected = 'number';
-  test.equal(actual, expected, 'with a property called "maxPoints" of type "number".');
+  actual = hex.grid.extentPoints.constructor.name,
+  expected = 'Array';
+  test.equal(actual, expected, 'with a property called "extentPoints" of type "Array".');
 
-  actual = typeof hex.grid.maxPointsWeighted, 
-  expected = 'number';
-  test.equal(actual, expected, 'with a property called "maxPointsWeighted" of type "number".');
+  actual = hex.grid.extentPointsWeighted.constructor.name,
+  expected = 'Array';
+  test.equal(actual, expected, 'with a property called "extentPointsWeighted" of type "Array".');
+
+  actual = hex.grid.extentPointDensity.constructor.name,
+  expected = 'Array';
+  test.equal(actual, expected, 'with a property called "extentPointDensity" of type "Array".');
 
   test.end();
 });
@@ -141,11 +145,15 @@ tape('The hexgrid function run with a geography returns an object', test => {
 tape('The hexgrid function run with a geography and user data returns an object', test => {
   let actual, expected;
 
-  actual = hexData.grid.maxPoints;
+  actual = hexData.grid.extentPoints[0];
+  expected = 1;
+  test.equal(actual, expected, 'with the expected minimum of datapoints per hexagon.')
+
+  actual = hexData.grid.extentPoints[1];
   expected = 1;
   test.equal(actual, expected, 'with the expected maximum of datapoints per hexagon.')
 
-  actual = hexData.grid.maxPointsWeighted > hexData.grid.maxPoints;
+  actual = hexData.grid.extentPointsWeighted[1] > hexData.grid.extentPoints[1];
   expected = true;
   test.equal(actual, expected, 'with a larger weighted maximum than unweighted maximum of datapoints per hexagon.')
 
@@ -194,14 +202,12 @@ tape('If supplied with a geography, user data and user variables, only the layou
   const filter = hexDataWithKeys.grid.layout.filter(d => d.datapoints);
   const keyArray = filter.map(d => Object.keys(d));
 
-
   actual = getKeyEquality(keyArray);
   expected = true;
   test.equal(actual, expected, 'share the same properties.');
 
   // Check unique key names.
   const uniqueKeys = getUniqueKeys(filter);
-
 
   actual = uniqueKeys.length;
   expected = 8;
@@ -229,8 +235,6 @@ tape('If supplied with a geography, user data and user variables, only the layou
   test.equal(actual, expected, 'hold datapoint objects with§ a "y" property.');
   actual = datapointsUniqueKeys.includes('Name') && datapointsUniqueKeys.includes('Population');
   test.equal(actual, expected, 'hold datapoint objects with the passed in user variables.');
-
-
 
   test.end();
 });

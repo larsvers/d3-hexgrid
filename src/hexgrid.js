@@ -18,14 +18,14 @@ import rollupDensity from './rollupDensity';
  */
 export default function() {
   // Init exposed.
-  let extent,
-    geography,
-    projection,
-    pathGenerator,
-    hexRadius = 4,
-    edgePrecision = 1,
-    gridExtend = 0,
-    geoKeys;
+  let extent;
+  let geography;
+  let projection;
+  let pathGenerator;
+  let hexRadius = 4;
+  let edgePrecision = 1;
+  let gridExtend = 0;
+  let geoKeys;
 
   /**
    * hexgrid function producing the layout.
@@ -53,13 +53,7 @@ export default function() {
       gridExtend
     );
 
-    let imageCenters = getImageCenters(
-      centers,
-      imageData,
-      size
-    );
-
-
+    let imageCenters = getImageCenters(centers, imageData, size);
 
     // Identify edge hexagons and calculate image overlap ratio.
 
@@ -72,11 +66,7 @@ export default function() {
       gridExtend
     );
 
-    const imageEdges = getEdgeCenters(
-      imageCenters,
-      imageDataEdges,
-      size
-    );
+    const imageEdges = getEdgeCenters(imageCenters, imageDataEdges, size);
 
     const edgeTools = getEdgeTools(
       edgePrecision,
@@ -87,9 +77,9 @@ export default function() {
       gridExtend
     );
 
-    const imageEdgesCover = imageEdges.map(d => {
-      return getCover(d, edgeTools, edgePrecision, hexRadius);
-    });
+    const imageEdgesCover = imageEdges.map(d =>
+      getCover(d, edgeTools, edgePrecision, hexRadius)
+    );
 
     imageCenters = addCover(imageCenters, imageEdgesCover);
 
