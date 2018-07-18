@@ -22,8 +22,8 @@ export default {
     babel({
       exclude: 'node_modules/**'
     }),
-		license({
-			banner: `d3-hexgrid plugin v<%= pkg.version %>. <%= pkg.repository.url %>.`
-		}),
+    license({
+      banner: `d3-hexgrid plugin v<%= pkg.version %>. <%= pkg.repository.url %>.`
+    }),
   ]
 };

@@ -16,6 +16,7 @@
   "main": "dist/d3-hexgrid.js",
   "module": "index",
   "jsnext:main": "index",
+  "unpkg": "dist/d3-hexgrid.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/larsvers/d3-hexgrid.git"

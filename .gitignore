@@ -2,4 +2,6 @@
 dist/
 node_modules
 npm-debug.log
-notes-d3-hexgrid.txt
+*.txt
+*.tgz
+package/
