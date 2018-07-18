@@ -1,6 +1,6 @@
 {
   "name": "d3-hexgrid",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Regularly tesselate polygons with hexagons.",
   "keywords": [
     "d3",
