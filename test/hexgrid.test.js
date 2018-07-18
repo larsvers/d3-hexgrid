@@ -153,10 +153,6 @@ tape('The hexgrid function run with a geography and user data returns an object'
   expected = 1;
   test.equal(actual, expected, 'with the expected maximum of datapoints per hexagon.')
 
-  actual = hexData.grid.extentPointsWeighted[1] > hexData.grid.extentPoints[1];
-  expected = true;
-  test.equal(actual, expected, 'with a larger weighted maximum than unweighted maximum of datapoints per hexagon.')
-
   // Check length of hexagons with datapoints.
   const layout = hexData.grid.layout;
   const points = layout.filter(d => d.datapoints).map(d => d.length > 0);
