@@ -46,14 +46,16 @@ export default function(points, r) {
 
     // Update extents.
     maxPoints   = Math.max(maxPoints, point.datapoints);
-    maxPointsWt = maxPoints;
+    maxPointsWt = Math.max(maxPointsWt, point.datapointsWt);
     maxDensity  = Math.max(maxDensity, point.pointDensity);
 
-    if (point.datapoints > 0)
+    if (point.datapoints > 0) {      
       minPoints   = Math.min(minPoints, point.datapoints);
-      minPointsWt = minPoints;
-    if (point.pointDensity > 0)
+      minPointsWt = Math.min(minPointsWt, point.datapointsWt);
+    }
+    if (point.pointDensity > 0) {
       minDensity  = Math.min(minDensity, point.pointDensity);
+    }
   }
 
   const extentPoints = [minPoints, maxPoints];

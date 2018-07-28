@@ -1,7 +1,7 @@
 .DS_Store
 dist/
-node_modules
 npm-debug.log
+node_modules
 *.txt
 *.tgz
 package/

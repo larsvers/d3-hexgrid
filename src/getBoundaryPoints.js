@@ -28,7 +28,7 @@ export default function(geo, projection) {
   // 2) Retrieve the boundary points.
 
   for (let i = 0; i < collection.length; i++) {
-    // Crack open the geometry to the to the coordinate holder object.
+    // Crack open the geometry to get the coordinate holder object.
     const geom =
       geo.type === 'FeatureCollection'
         ? geo.features[i].geometry
