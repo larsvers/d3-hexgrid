@@ -1,6 +1,6 @@
 {
   "name": "d3-hexgrid",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Regular hexagon tessellation with edge cover detection.",
   "keywords": [
     "d3",
