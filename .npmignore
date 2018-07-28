@@ -1,3 +1,5 @@
 dist/*.zip
 test/
-notes-d3-hexgrid.txt
+.babelrc
+.eslintrc.js
+rollup.config.js
