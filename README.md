@@ -34,14 +34,14 @@ Or you can use [unpkg](https://unpkg.com/) to script-link to _d3-hexgrid_:
 
 ![disputes](https://raw.githubusercontent.com/larsvers/image-store/master/d3-hexgrid/disputes.jpg)
 
-<sub>Data source: [Midloc via data.world](https://data.world/cow/militarized-dispute-locations/workspace/file?filename=midloc-v1-1%2FMIDLOC_1.1.csv). Additional clip-path applied. • [code](https://bl.ocks.org/larsvers/049c8f382ea07d48ca0a395e661d0fa4)</sub>
+<sub>Data source: [Midloc via data.world](https://data.world/cow/militarized-dispute-locations/). Additional clip-path applied. • [code](https://bl.ocks.org/larsvers/049c8f382ea07d48ca0a395e661d0fa4)</sub>
 
 
 #### Cities across the world
 
 ![cities](https://raw.githubusercontent.com/larsvers/image-store/master/d3-hexgrid/cities.jpg)
 
-<sub>Data source: [maxmind](http://www.maxmind.com/). Not equal area projected. • [code](https://bl.ocks.org/larsvers/da5b2b77c8626be757076807409b87d3)</sub>
+<sub>Data source: [maxmind](https://www.maxmind.com/en/free-world-cities-database). Not equal area projected. • [code](https://bl.ocks.org/larsvers/da5b2b77c8626be757076807409b87d3)</sub>
 
 #### Farmers Markets in the US
 
@@ -72,7 +72,7 @@ The edge hexagon at the south-eastern tip of Florida we're comparing has a cover
 
 Differences might be subtle but noticeable.
 
-Please [see this notebook](https://beta.observablehq.com/@larsvers/hexgrid-maps-with-d3-hexgrid) for a detailed description of the overall algorithm in general and the cover calculation in particular. 
+Please see the d3-hexgrid's notebook [section on edge cover](https://beta.observablehq.com/@larsvers/hexgrid-maps-with-d3-hexgrid#coverChapter) for a detailed description of the cover calculation. 
 
 
 ## Example usage
@@ -81,7 +81,7 @@ A lean example usage of _d3-hexgrid_.
 
 ```
 // Container.
-const svg = d3.select('#container')
+const svg = d3.select('body')
   .append('svg')
   .attr(width, 'width')
   .attr('height, 'height');
@@ -111,8 +111,8 @@ svg.append('g')
   .enter()
   .append('path')
   .attr('class', 'hex')
-  .attr('transform', d => `translate(${d.x}, ${d.y})`)
   .attr('d', hex.hexagon())
+  .attr('transform', d => `translate(${d.x}, ${d.y})`)
   .style('fill', d => !d.datapoints ? '#fff' : colourScale(d.datapoints));
 ```
 
@@ -121,7 +121,7 @@ svg.append('g')
 First, we create an `SVG` element. Let's assume our geography represents mainland US and comes in as a geoJSON called `geo`. We use an Albers projection to fit our SVG and finally get the appropriate path generator.
 
 ```
-const svg = d3.select('#container')
+const svg = d3.select('body')
   .append('svg')
   .attr(width, 'width')
   .attr('height, 'height');
@@ -148,7 +148,7 @@ const hex = hexgrid(myPointLocationData);
 
 ![grid object](https://raw.githubusercontent.com/larsvers/image-store/master/d3-hexgrid/grid-object.jpg)
 
-* `imageCenters` is an array of all [x, y] hexagon centres of the hexgrid.
+* `imageCenters` is an array of objects exposing at least the _x_, _y_ hexagon centre coordinates of the hexgrid in screen space.
 
 * `layout` is an array of arrays, each sub-array representing a hexagon in the grid. Each sub-array holds all point locations per hexagon in an object exposing at least _x_ and _y_ pixel coordinates as well as aggregate values. Here's an example hexagon layout sub-array with three point locations (or _datapoints_):
 
@@ -187,11 +187,11 @@ svg.append('g')
   .enter()
   .append('path')
   .attr('class', 'hex')
-  .attr('transform', d => `translate(${d.x}, ${d.y})`)
   .attr('d', hexgrid.hexagon())
+  .attr('transform', d => `translate(${d.x}, ${d.y})`)
   .style('fill', d => !d.datapoints ? '#fff' : colourScale(d.datapoints));
 ```
-We use the `hex.grid.layout` to produce as many path's as there are hexagons&mdash;as we would with `d3.hexbin()`&mdash;now, however, making sure we have as many hexagons to cover our entire GeoJSON polygon. We `translate` them into place and draw them with `hexgrid.hexagon()`. Lastly, we give our empty hexagons (`!d.datapoints`) a white fill and colour encode all other hexagons depending on their number of `datapoints`.
+We use the `hex.grid.layout` to produce as many path's as there are hexagons&mdash;as we would with `d3.hexbin()`&mdash;now, however, making sure we have as many hexagons to cover our entire GeoJSON polygon. We draw each hexagon with with `hexgrid.hexagon()` and `translate` them into place. Lastly, we give our empty hexagons (`!d.datapoints`) a white fill and colour encode all other hexagons depending on their number of `datapoints`.
 
 
 
@@ -323,3 +323,5 @@ Location binning is susceptible to the [Modifiable Areal Unit Problem](https://b
 ## Thanks!
 
 A big thanks to [Philippe Rivière](https://illisible.net/philippe-riviere) for bringing the grid layout algorithm on track and sparking the idea for the edge cover calculation. This plug-in would look different and be significantly less performant without his elegant ideas.
+
+For a deeper dive read [Amit Patel](http://www-cs-students.stanford.edu/~amitp/)'s (aka [reblobgames](https://www.redblobgames.com/)) seminal [hexagon tutorial](http://www.redblobgames.com/grids/hexagons/). The best to find out there. Also see the great things Uber's been doing with [H3](https://uber.github.io/h3/#/), which in many ways goes far beyond this plugin.
