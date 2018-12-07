@@ -8,7 +8,7 @@
  * @param  {Array}              size        Width and height of drawing canvas.
  * @param  {number}             precision   Hidden canvas ratio of the
  *                                          drawing canvas.
- * @return {Array}                          Hexagon centers covering 
+ * @return {Array}                          Hexagon centers covering
  *                                          the displayed object.
  */
 // export default function(centers, image, size, precision) {
@@ -18,14 +18,15 @@ export default function(centers, image, size) {
   return centers
     .filter(center => {
       return (
-        // Vouch for centers to be within bounds.
-        center[0] >= 0 && center[0] <= w &&
-        center[1] >= 0 && center[1] <= h &&
-        image[Math.floor(center[0]) +  
-              Math.floor(center[1]) * w]
+        // Guarantee centers to be within bounds.
+        center[0] >= 0 &&
+        center[0] <= w &&
+        center[1] >= 0 &&
+        center[1] <= h &&
+        image[Math.floor(center[0]) + Math.floor(center[1]) * Math.floor(w)]
       );
     })
-    .map((center,i) => { 
-      return { id: i, x: center[0], y: center[1], gridpoint: 1, cover: 1 }
+    .map((center, i) => {
+      return { id: i, x: center[0], y: center[1], gridpoint: 1, cover: 1 };
     });
 }

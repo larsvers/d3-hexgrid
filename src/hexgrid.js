@@ -1,4 +1,6 @@
-import { convertToMin } from './utils';
+import { expandExtent, convertToMin } from './utils';
+
+import convertUnitRadius from './convertUnitRadius';
 
 import setHexGenerator from './setHexGenerator';
 import getImageData from './getImageData';
@@ -23,6 +25,8 @@ export default function() {
   let projection;
   let pathGenerator;
   let hexRadius = 4;
+  let hexRadiusUnit = null;
+  let hexRadiusInUnits = null;
   let edgePrecision = 1;
   let gridExtend = 0;
   let geoKeys;
@@ -36,8 +40,23 @@ export default function() {
    * @return {function/Object}      Augmented hexbin generator.
    */
   const hexgrid = function(userData, userVariables) {
-    // Identify hexagons to draw.
+    // Convert to pixel radius if provided in units.
+    if (hexRadiusInUnits) {
+      const conversion = convertUnitRadius(
+        hexRadiusInUnits,
+        hexRadiusUnit,
+        projection,
+        extent[1].map(d => d / 2)
+      );
+      hexRadius = conversion.radiusPixel;
+    }
 
+    // Set hex radius to nearest full- or half-pixel.
+    hexRadius = Math.round(hexRadius * 2) / 2;
+
+    console.log(hexRadius);
+
+    // Identify hexagons to draw.
     const hexbin = setHexGenerator(extent, hexRadius);
 
     const size = hexbin.size();
@@ -56,7 +75,6 @@ export default function() {
     let imageCenters = getImageCenters(centers, imageData, size);
 
     // Identify edge hexagons and calculate image overlap ratio.
-
     const imageDataEdges = getImageData(
       size,
       pathGenerator,
@@ -84,7 +102,6 @@ export default function() {
     imageCenters = addCover(imageCenters, imageEdgesCover);
 
     // Prepare user data to augment layout.
-
     const userDataPrepped = prepUserData(
       userData,
       projection,
@@ -101,7 +118,6 @@ export default function() {
     hexData = rollupDensity(hexData, hexRadius);
 
     // Augment hexbin generator.
-
     hexbin.grid = {};
     hexbin.grid.layout = hexData.layout;
     hexbin.grid.imageCenters = imageCenters;
@@ -114,7 +130,7 @@ export default function() {
 
   // Exposed.
   hexgrid.extent = function(_) {
-    return arguments.length ? ((extent = _), hexgrid) : extent;
+    return arguments.length ? ((extent = expandExtent(_)), hexgrid) : extent;
   };
 
   hexgrid.geography = function(_) {
@@ -129,8 +145,21 @@ export default function() {
     return arguments.length ? ((pathGenerator = _), hexgrid) : pathGenerator;
   };
 
-  hexgrid.hexRadius = function(_) {
-    return arguments.length ? ((hexRadius = _), hexgrid) : hexRadius;
+  hexgrid.hexRadius = function(...args) {
+    if (!args.length) {
+      return hexRadiusUnit
+        ? { radius: hexRadius, unit: hexRadiusUnit }
+        : hexRadius;
+    } else if (args.length === 1) {
+      return (hexRadius = args[0]), hexgrid;
+    } else if (args.length === 2) {
+      [hexRadiusInUnits, hexRadiusUnit] = args;
+      return hexgrid;
+    } else {
+      throw new Error(
+        'Please pass a numeric radius and optionally a string distance unit ("miles" or "kilometres") to `.hexradius()`'
+      );
+    }
   };
 
   hexgrid.edgePrecision = function(_) {

@@ -10,7 +10,7 @@
   "homepage": "https://github.com/larsvers/d3-hexgrid",
   "author": {
     "name": "Lars Verspohl",
-    "url": "http://www.datamake.io"
+    "url": "https://www.datamake.io"
   },
   "license": "BSD-3-Clause",
   "main": "dist/d3-hexgrid.js",
@@ -36,7 +36,6 @@
     "babel-plugin-external-helpers": "^6.22",
     "babel-preset-env": "^1.7",
     "canvas": "^1.6",
-    "d3-geo": "^1.10",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-config-airbnb-base": "^13.0.0",
@@ -56,6 +55,7 @@
   },
   "dependencies": {
     "d3-array": "^1.2",
+    "d3-geo": "^1.10",
     "d3-hexbin": "^0.2",
     "d3-polygon": "^1.0"
   }
