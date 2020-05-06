@@ -54,8 +54,6 @@ export default function() {
     // Set hex radius to nearest full- or half-pixel.
     hexRadius = Math.round(hexRadius * 2) / 2;
 
-    console.log(hexRadius);
-
     // Identify hexagons to draw.
     const hexbin = setHexGenerator(extent, hexRadius);
 
