@@ -1,6 +1,7 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import license from 'rollup-plugin-license';
-import resolve from 'rollup-plugin-node-resolve';
 
 const	globals = {
 	'd3-array': 'd3',
@@ -10,7 +11,8 @@ const	globals = {
 }
 
 export default {
-	entry: 'index.js',
+	external: ['@babel/runtime'],
+	input: 'index.js',
 	output: {
 		file: 'dist/d3-hexgrid.js',
 		format: 'umd',
@@ -19,11 +21,16 @@ export default {
 	},
   plugins: [
     resolve(),
+    commonjs(),
     babel({
-      exclude: 'node_modules/**'
+			exclude: 'node_modules/**',
+			babelHelpers: 'runtime'
     }),
     license({
-      banner: `d3-hexgrid plugin v<%= pkg.version %>. <%= pkg.repository.url %>.`
+			banner: {
+				content: `d3-hexgrid plugin v<%= pkg.version %>. <%= pkg.repository.url %>.`,
+				commentStyle: 'ignored',
+			},
     }),
   ]
 };

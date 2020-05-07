@@ -362,5 +362,4 @@ tape('Given a user defined distance unit', test => {
 
   test.end();
 
-  console.log(actual, expected);
 });

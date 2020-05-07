@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { extent } from 'd3-array';
 
 /**
@@ -34,6 +36,7 @@ export function convertToMin(v, name, min) {
   if (v >= min) {
     return v;
   }
+  // eslint-disable-next-line no-console
   console.warn(`${name} should be ${min} or greater. Coerced to ${min}.`);
   return min;
 }

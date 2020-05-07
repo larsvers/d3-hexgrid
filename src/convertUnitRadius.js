@@ -11,7 +11,8 @@ function getUnitString(unit) {
 
   if (unitLower === 'm' || unitLower === 'km') {
     return unitLower;
-  } else if (
+  } 
+  if (
     unitLower === 'kilometres' ||
     unitLower === 'kilometre' ||
     unitLower === 'kilometers' ||
