@@ -54,8 +54,6 @@ export default function() {
     // Set hex radius to nearest full- or half-pixel.
     hexRadius = Math.round(hexRadius * 2) / 2;
 
-    console.log(hexRadius);
-
     // Identify hexagons to draw.
     const hexbin = setHexGenerator(extent, hexRadius);
 
@@ -150,16 +148,18 @@ export default function() {
       return hexRadiusUnit
         ? { radius: hexRadius, unit: hexRadiusUnit }
         : hexRadius;
-    } else if (args.length === 1) {
+    } 
+    if (args.length === 1) {
       return (hexRadius = args[0]), hexgrid;
-    } else if (args.length === 2) {
+    }
+    if (args.length === 2) {
       [hexRadiusInUnits, hexRadiusUnit] = args;
       return hexgrid;
-    } else {
-      throw new Error(
-        'Please pass a numeric radius and optionally a string distance unit ("miles" or "kilometres") to `.hexradius()`'
-      );
-    }
+    } 
+    
+    throw new Error(
+      'Please pass a numeric radius and optionally a string distance unit ("miles" or "kilometres") to `.hexradius()`'
+    );
   };
 
   hexgrid.edgePrecision = function(_) {

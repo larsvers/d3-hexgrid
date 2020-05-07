@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 /**
  * Bring each hexpoint into shape, by rolling up number of datapoints
  * per hexagon, add cover and setting apart original centers from

@@ -22,7 +22,7 @@ export default function(geo, projection) {
       );
     }
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 
   // 2) Retrieve the boundary points.
